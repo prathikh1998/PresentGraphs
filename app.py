@@ -5,23 +5,52 @@ import random
 app = Flask(__name__)
 
 # Function to simulate querying the earthquake data based on the specified parameters
+# Function to establish a database connection
+def connect_to_db():
+    # Replace with your actual database connection details
+    connection = pyodbc.connect(
+        'Driver={your_driver};'
+        'Server=your_server;'
+        'Database=your_database;'
+        'Uid=your_username;'
+        'Pwd=your_password;'
+    )
+    return connection
+
+# Function to execute SQL queries
+def execute_query(connection, query):
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        result = cursor.fetchall()
+    return result
+
 def query_data(query_type, query_params):
-    # Simulating the execution of SQL queries
-    # Replace with actual SQL queries to fetch data from the database
-    
+    connection = connect_to_db()
+
     if query_type == 'random':
         num_queries = int(query_params['num_queries'])
         query_results = []
         for _ in range(num_queries):
-            # Simulating fetching random tuples from the dataset
-            # Replace this with actual logic to retrieve random tuples
-            query_results.append(f"Random Tuple: {random.randint(1, 1000)}")
+            # SQL query to fetch random tuples from the all_month table
+            query = "SELECT TOP 1 * FROM all_month ORDER BY NEWID()"
+            result = execute_query(connection, query)
+            query_results.append(result)
+        connection.close()
         return query_results
-    
+
     elif query_type == 'restricted':
-        # Simulating fetching restricted tuples based on query parameters
-        # Replace this with actual logic to retrieve restricted tuples
-        return ['Restricted Tuple 1', 'Restricted Tuple 2', 'Restricted Tuple 3']
+        # Retrieve additional query parameters for restricted queries
+        location = query_params['location']
+        # Add more parameters as needed
+
+        # SQL query to fetch restricted tuples from the all_month table
+        query = f"SELECT * FROM all_month WHERE location = '{location}'"
+        # Add more conditions to the query based on additional parameters
+
+        result = execute_query(connection, query)
+        connection.close()
+        return result
+
 
 @app.route('/')
 def index():
