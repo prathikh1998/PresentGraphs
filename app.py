@@ -9,11 +9,11 @@ app = Flask(__name__)
 def connect_to_db():
     # Replace with your actual database connection details
     connection = pyodbc.connect(
-        'Driver={your_driver};'
-        'Server=your_server;'
-        'Database=your_database;'
-        'Uid=your_username;'
-        'Pwd=your_password;'
+        'Driver={ODBC Driver 18 for SQL Server};'
+        'Server=tcp:prathikhegde.database.windows.net,1433;'
+        'Database=ASSS2;'
+        'Uid=prathikhegde;'
+        'Pwd=Tco7890$;'
     )
     return connection
 
