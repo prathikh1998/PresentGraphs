@@ -2,5 +2,4 @@ flask
 pyodbc
 scikit-learn
 geopy
-time
 Flask-WTF
