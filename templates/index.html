@@ -1,15 +1,24 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Earthquake Data</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+  <title>Earthquake Data Query</title>
+  <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-    <h1>Welcome to the Earthquake Data Web Application</h1>
-    <p>Please select an option:</p>
-    <ul>
-        <li><a href="/results">Random Queries</a></li>
-    </ul>
+  <h1>Earthquake Data Query</h1>
+  <form action="results.html" method="post">
+    <label for="query-type">Query Type:</label>
+    <select id="query-type" name="query-type">
+      <option value="random">Random Queries</option>
+      <option value="restricted">Restricted Queries</option>
+    </select>
+    <br>
+    <!-- Add more input fields based on the query type -->
+    <!-- For example, latitude/longitude inputs for restricted queries -->
+    <!-- or time/magnitude inputs for time/magnitude range queries -->
+    <br>
+    <input type="submit" value="Submit">
+  </form>
+  <p>&copy; DL, UTA, 2023</p>
 </body>
 </html>
