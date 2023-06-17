@@ -5,12 +5,12 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-# Azure SQL Database connection details
-server = 'your_server.database.windows.net'
-database = 'your_database'
-username = 'your_username'
-password = 'your_password'
-driver = '{ODBC Driver 17 for SQL Server}'
+# Azure SQL Database configuration
+server = 'tcp:prathikhegde.database.windows.net,1433'
+database = 'ASSS2'
+username = 'prathikhegde'
+password = 'Tco7890$'
+driver = '{ODBC Driver 18 for SQL Server}'
 
 # Create the connection string
 connection_string = f"DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}"
@@ -33,7 +33,7 @@ def random_queries():
             random_id = random.randint(1, 1000)
 
             # Execute the query
-            query = f"SELECT * FROM Earthquakes WHERE id = {random_id}"
+            query = f"SELECT * FROM all_month WHERE id = {random_id}"
             cursor.execute(query)
             
             # Fetch the query result
@@ -71,7 +71,7 @@ def restricted_queries():
         start_time = time.time()
 
         # Execute the query
-        query = f"SELECT * FROM Earthquakes WHERE geography::Point({latitude}, {longitude}, 4326).STDistance(geography::Point(latitude, longitude, 4326)) < {distance}"
+        query = f"SELECT * FROM all_month WHERE geography::Point({latitude}, {longitude}, 4326).STDistance(geography::Point(latitude, longitude, 4326)) < {distance}"
         cursor.execute(query)
 
         # Fetch all query results
