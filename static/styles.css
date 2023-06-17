@@ -22,7 +22,15 @@ body {
     margin-top: 10px;
   }
   
-  #results-container {
-    margin-top: 20px;
+  #query-params {
+    margin-top: 10px;
+  }
+  
+  #restricted-query-fields {
+    margin-top: 10px;
+  }
+  
+  #restricted-query-fields input {
+    margin-bottom: 5px;
   }
   
