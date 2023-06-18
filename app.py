@@ -17,7 +17,7 @@ def index():
 @app.route('/random_queries', methods=['POST', 'GET'])
 def random_queries():
     if request.method == 'POST':
-         num_queries = int(request.form.get('num_queries'))
+        num_queries = int(request.form.get('num_queries'))
 
         start_time = time.time()
         for _ in range(num_queries):
