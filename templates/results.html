@@ -1,18 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Query Results</title>
-  <link rel="stylesheet" type="text/css" href="styles.css">
+    <title>Query Results</title>
 </head>
 <body>
-  <h1>Query Results</h1>
-  <div id="results-container">
-    <h2>Results:</h2>
-    {% for result in query_results %}
-    <p>{{ result }}</p>
-    {% endfor %}
-    <p>Elapsed Time: {{ elapsed_time }} seconds</p>
-  </div>
-  <p>&copy; DL, UTA, 2023</p>
+    <h1>Query Results</h1>
+    <p>Executed {{ num_queries }} random queries in {{ execution_time }} seconds.</p>
+    <!-- Display additional query results here if needed -->
 </body>
 </html>
