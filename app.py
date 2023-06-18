@@ -46,9 +46,11 @@ def generate_random_query():
     ]
     
     # Generate a random query to fetch a random tuple
-    query = f"SELECT TOP 1 FROM {table_name} ORDER BY RAND();"
+    random_field = random.choice(fields)
+    query = f"SELECT TOP 1 {random_field} FROM {table_name} ORDER BY NEWID();"
     
     return query
+
 
 if __name__ == '__main__':
     app.run()
