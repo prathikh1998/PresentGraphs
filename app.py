@@ -17,7 +17,7 @@ def index():
 @app.route('/random_queries', methods=['POST', 'GET'])
 def random_queries():
     if request.method == 'POST':
-        num_queries = int(request.form.get('num_queries'))
+         num_queries = int(request.form.get('num_queries'))
 
         start_time = time.time()
         for _ in range(num_queries):
@@ -36,6 +36,7 @@ def random_queries():
         return render_template('results.html', num_queries=num_queries, execution_time=execution_time)
     else:
         return render_template('random_queries.html')
+
 
 def generate_random_query():
     table_name = "all_month"
