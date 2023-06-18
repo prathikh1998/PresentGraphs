@@ -18,6 +18,7 @@ def index():
 def random_queries():
     if request.method == 'POST':
         num_queries = int(request.form.get('num_queries'))
+        query_results = []  # Initialize an empty list to store the query results
 
         start_time = time.time()
         for _ in range(num_queries):
@@ -27,15 +28,19 @@ def random_queries():
             # Execute the query
             cursor.execute(query)
 
-            # Fetch the results (optional)
+            # Fetch the results
             results = cursor.fetchall()
+
+            # Append the query, results, and execution time to query_results
+            query_results.append((query, results, time.time() - start_time))
 
         end_time = time.time()
         execution_time = end_time - start_time
 
-        return render_template('results.html', num_queries=num_queries, execution_time=execution_time)
+        return render_template('results.html', num_queries=num_queries, execution_time=execution_time, query_results=query_results)
     else:
         return render_template('random_queries.html')
+
 
 
 def generate_random_query():
