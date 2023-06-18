@@ -1,11 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Query Results</title>
+    <title>Results</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .query-time {
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <h1>Query Results</h1>
-    <p>Executed {{ num_queries }} random queries in {{ execution_time }} seconds.</p>
-    <!-- Display additional query results here if needed -->
+    <p>Total number of queries executed: {{ num_queries }}</p>
+    <p>Execution time: {{ execution_time }} seconds</p>
+
+    <table>
+        <tr>
+            <th>Query</th>
+            <th>Results</th>
+            <th>Time Taken</th>
+        </tr>
+
+        {% for query, results, query_time in query_results %}
+        <tr>
+            <td>{{ query }}</td>
+            <td>
+                <ul>
+                    {% for result in results %}
+                    <li>{{ result }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td class="query-time">{{ query_time }} seconds</td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>
