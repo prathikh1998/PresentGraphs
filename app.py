@@ -46,7 +46,7 @@ def generate_random_query():
     ]
     
     # Generate a random query to fetch a random tuple
-    query = f"SELECT * FROM {table_name} ORDER BY RANDOM() LIMIT 1;"
+    query = f"SELECT TOP 1 FROM {table_name} ORDER BY RAND();"
     
     return query
 
