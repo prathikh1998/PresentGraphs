@@ -31,20 +31,12 @@
     <table>
         <tr>
             <th>Query</th>
-            <th>Results</th>
             <th>Time Taken</th>
         </tr>
 
-        {% for query, results, query_time in query_results %}
+        {% for query, query_time in query_results %}
         <tr>
             <td>{{ query }}</td>
-            <td>
-                <ul>
-                    {% for result in results %}
-                    <li>{{ result }}</li>
-                    {% endfor %}
-                </ul>
-            </td>
             <td class="query-time">{{ query_time }} seconds</td>
         </tr>
         {% endfor %}
