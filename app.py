@@ -19,20 +19,17 @@ def random_queries():
     if request.method == 'POST':
         num_queries = int(request.form.get('num_queries'))
 
-        start_time = time.time()
         query_results = []
         for _ in range(num_queries):
             # Generate a random query
             query = generate_random_query()
 
             # Execute the query
+            start_time = time.time()
             cursor.execute(query)
-
-            # Fetch the results (optional)
-            # results = cursor.fetchall()
-
-            # Get the execution time
             end_time = time.time()
+
+            # Calculate the execution time
             execution_time = end_time - start_time
 
             # Append the query and execution time to the results list
