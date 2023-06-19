@@ -1,21 +1,53 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <title>Query Results</title>
-</head>
+    <title>Results</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
 
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .query-time {
+            font-weight: bold;
+        }
+    </style>
+</head>
 <body>
     <h1>Query Results</h1>
+    <p>Total number of queries executed: {{ num_queries }}</p>
+    <p>Execution time: {{ execution_time }} seconds</p>
 
-    {% for query, query_time in query_results %}
-        <h2>Query: {{ query }}</h2>
-        <p>Execution Time: {% if query_time == "From Cache" %}From Cache{% else %}{{ query_time }} seconds{% endif %}</p>
-        {% if query_time != "From Cache" %}
-            <!-- Display the result from the executed query -->
-            <!-- Add your HTML code here -->
-        {% endif %}
-    {% endfor %}
+    <table>
+        <tr>
+            <th>Query</th>
+            <th>Time Taken</th>
+        </tr>
+
+        {% for query, query_time in query_results %}
+        <tr>
+            <td>{{ query }}</td>
+            <td>
+                <ul>
+                    {% for result in results %}
+                    <li>{{ result }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td class="query-time">{{ query_time }} seconds</td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
-
 </html>
