@@ -1,23 +1,34 @@
-<!-- templates/restricted_queries.html -->
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Restricted Queries</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 </head>
+
 <body>
     <h1>Restricted Queries</h1>
-    <form action="/restricted_queries" method="POST">
+
+    <form action="/generate_restricted_queries" method="POST">
         <label for="latitude">Latitude:</label>
         <input type="text" id="latitude" name="latitude" required>
         <br>
         <label for="longitude">Longitude:</label>
         <input type="text" id="longitude" name="longitude" required>
         <br>
-        <label for="distance">Distance (in km):</label>
-        <input type="number" id="distance" name="distance" required>
+        <label for="start_date">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" required>
         <br>
-        <input type="submit" value="Execute Query">
+        <label for="end_date">End Date:</label>
+        <input type="date" id="end_date" name="end_date" required>
+        <br>
+        <label for="min_magnitude">Minimum Magnitude:</label>
+        <input type="number" id="min_magnitude" name="min_magnitude" step="0.1" required>
+        <br>
+        <label for="max_magnitude">Maximum Magnitude:</label>
+        <input type="number" id="max_magnitude" name="max_magnitude" step="0.1" required>
+        <br><br>
+        <input type="submit" value="Generate Restricted Queries">
     </form>
 </body>
+
 </html>
