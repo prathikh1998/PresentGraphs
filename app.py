@@ -25,19 +25,16 @@ def random_queries():
 
         query_results = []
         for _ in range(num_queries):
-            start_time = time.time()  # Start time for each query
-
             # Generate a random query
             query = generate_random_query()
 
-            # Check if the result exists in the cache
-            result = mc.get(query)
-
-            if result:
-                # Result found in the cache
-                query_time = "From Cache"
-                result_tuple = (result, query_time)
+            # Check if the query result is already cached
+            if query in query_cache:
+                # Retrieve the result from the cache
+                result = query_cache[query]
+                print("Result retrieved from cache")
             else:
+                start_time = time.time()
                 # Execute the query
                 cursor.execute(query)
 
@@ -48,11 +45,10 @@ def random_queries():
                 query_time = time.time() - start_time
 
                 # Store the result in the cache
-                mc.set(query, results)
+                query_cache[query] = (results, query_time)
+                print("Result fetched from the database")
 
-                result_tuple = (results, query_time)
-
-            query_results.append((query, result_tuple))
+            query_results.append((query, query_cache[query][0], query_cache[query][1]))
 
         return render_template('results.html', query_results=query_results)
     else:
@@ -66,19 +62,16 @@ def restricted_queries():
 
         query_results = []
         for _ in range(num_queries):
-            start_time = time.time()  # Start time for each query
-
             # Generate a random restricted query
             query = generate_random_restricted_query()
 
-            # Check if the result exists in the cache
-            result = mc.get(query)
-
-            if result:
-                # Result found in the cache
-                query_time = "From Cache"
-                result_tuple = (result, query_time)
+            # Check if the query result is already cached
+            if query in query_cache:
+                # Retrieve the result from the cache
+                result = query_cache[query]
+                print("Result retrieved from cache")
             else:
+                start_time = time.time()
                 # Execute the query
                 cursor.execute(query)
 
@@ -89,16 +82,14 @@ def restricted_queries():
                 query_time = time.time() - start_time
 
                 # Store the result in the cache
-                mc.set(query, results)
+                query_cache[query] = (results, query_time)
+                print("Result fetched from the database")
 
-                result_tuple = (results, query_time)
-
-            query_results.append((query, result_tuple))
+            query_results.append((query, query_cache[query][0], query_cache[query][1]))
 
         return render_template('results.html', query_results=query_results)
     else:
         return render_template('restricted_queries.html')
-
 
 
 def generate_random_query():
