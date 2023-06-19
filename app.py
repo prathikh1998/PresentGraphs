@@ -41,37 +41,31 @@ def random_queries():
         return render_template('random_queries.html')
 
 
-@app.route('/restricted_queries', methods=['GET'])
+@app.route('/restricted_queries', methods=['POST', 'GET'])
 def restricted_queries():
-    return render_template('restricted_queries.html')
+    if request.method == 'POST':
+        num_queries = int(request.form.get('num_queries'))
 
+        query_results = []
+        start_time = time.time()
+        for _ in range(num_queries):
+            # Generate a random restricted query
+            query = generate_random_restricted_query()
 
-@app.route('/restricted_results', methods=['POST'])
-def restricted_results():
-    location = request.form.get('location')
-    distance = float(request.form.get('distance'))
-    start_time = request.form.get('start_time')
-    end_time = request.form.get('end_time')
-    min_magnitude = float(request.form.get('min_magnitude'))
-    max_magnitude = float(request.form.get('max_magnitude'))
+            # Execute the query
+            cursor.execute(query)
 
-    query_results = []
+            # Fetch the results (optional)
+            results = cursor.fetchall()
 
-    # Generate a random query based on the specified conditions
-    query = generate_restricted_query(location, distance, start_time, end_time, min_magnitude, max_magnitude)
+            # Get the execution time
+            query_time = time.time() - start_time
 
-    # Execute the query
-    cursor.execute(query)
+            query_results.append((query, query_time))
 
-    # Fetch the results (optional)
-    results = cursor.fetchall()
-
-    # Get the execution time
-    query_time = time.time() - start_time
-
-    query_results.append((query, query_time))
-
-    return render_template('results.html', query_results=query_results)
+        return render_template('results.html', query_results=query_results)
+    else:
+        return render_template('restricted_queries.html')
 
 
 def generate_random_query():
@@ -89,11 +83,36 @@ def generate_random_query():
     return query
 
 
-def generate_restricted_query(location, distance, start_time, end_time, min_magnitude, max_magnitude):
-    # Generate a query based on the specified conditions
-    query = f"SELECT * FROM all_month WHERE location = '{location}' AND distance < {distance} AND time BETWEEN '{start_time}' AND '{end_time}' AND mag BETWEEN {min_magnitude} AND {max_magnitude}"
+def generate_random_restricted_query():
+    table_name = "all_month"
+    fields = [
+        "time", "latitude", "longitude", "depth", "mag", "magType", "nst", "gap", "dmin", "rms",
+        "net", "id", "updated", "place", "type", "horizontalError", "depthError", "magError",
+        "magNst", "status", "locationSource", "magSource"
+    ]
+
+    # Generate a random restricted condition
+    condition = generate_random_restricted_condition()
+
+    # Generate a random query with the condition
+    random_field = random.choice(fields)
+    query = f"SELECT TOP 1 {random_field} FROM {table_name} WHERE {condition} ORDER BY NEWID();"
 
     return query
+
+
+def generate_random_restricted_condition():
+    conditions = [
+        "place LIKE '%CA%'",
+        "distance < 100",
+        "time BETWEEN 'start_time' AND 'end_time'",
+        "mag BETWEEN min_magnitude AND max_magnitude"
+    ]
+
+    # Generate a random restricted condition
+    condition = random.choice(conditions)
+
+    return condition
 
 
 if __name__ == '__main__':
