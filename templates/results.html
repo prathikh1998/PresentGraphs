@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Results</title>
     <style>
@@ -8,7 +9,8 @@
             width: 100%;
         }
 
-        th, td {
+        th,
+        td {
             padding: 8px;
             text-align: left;
             border-bottom: 1px solid #ddd;
@@ -23,6 +25,7 @@
         }
     </style>
 </head>
+
 <body>
     <h1>Query Results</h1>
     <p>Total number of queries executed: {{ num_queries }}</p>
@@ -34,12 +37,20 @@
             <th>Time Taken</th>
         </tr>
 
-        {% for query, query_time in query_results %}
+        {% for query, results, query_time in query_results %}
         <tr>
             <td>{{ query }}</td>
+            <td>
+                <ul>
+                    {% for result in results %}
+                    <li>{{ result }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
             <td class="query-time">{{ query_time }} seconds</td>
         </tr>
         {% endfor %}
     </table>
 </body>
+
 </html>
