@@ -48,8 +48,9 @@ def restricted_queries():
         num_queries = int(request.form.get('num_queries'))
 
         query_results = []
-        start_time = time.time()
         for _ in range(num_queries):
+            start_time = time.time()  # Start time for each query
+
             # Generate a random restricted query
             query = generate_random_restricted_query()
 
@@ -67,6 +68,7 @@ def restricted_queries():
         return render_template('results.html', query_results=query_results)
     else:
         return render_template('restricted_queries.html')
+
 
 
 def generate_random_query():
