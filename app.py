@@ -14,64 +14,9 @@ cursor = cnxn.cursor()
 # Create a cache dictionary
 query_cache = {}
 
-def generate_random_query():
-    table_name = "all_month"
-    fields = [
-        "time", "latitude", "longitude", "depth", "mag", "magType", "nst", "gap", "dmin", "rms",
-        "net", "id", "updated", "place", "type", "horizontalError", "depthError", "magError",
-        "magNst", "status", "locationSource", "magSource"
-    ]
-
-    # Generate a random query to fetch a random tuple
-    random_field = random.choice(fields)
-    query = f"SELECT TOP 1 {random_field} FROM {table_name} ORDER BY NEWID();"
-
-    return query
-
-
-def generate_random_restricted_query():
-    table_name = "all_month"
-    fields = [
-        "time", "latitude", "longitude", "depth", "mag", "magType", "nst", "gap", "dmin", "rms",
-        "net", "id", "updated", "place", "type", "horizontalError", "depthError", "magError",
-        "magNst", "status", "locationSource", "magSource"
-    ]
-
-    # Generate a random restricted condition
-    condition = generate_random_restricted_condition()
-
-    # Generate a random query with the condition
-    random_field = random.choice(fields)
-    query = f"SELECT TOP 1 {random_field} FROM {table_name} WHERE {condition} ORDER BY NEWID();"
-
-    return query
-
-
-def generate_random_restricted_condition():
-    conditions = [
-        "place LIKE '%California%'",
-        f"time BETWEEN '{generate_random_date()}' AND '{generate_random_date()}'",
-        f"mag BETWEEN {random.uniform(0, 10)} AND {random.uniform(0, 10)}"
-    ]
-
-    # Generate a random restricted condition
-    condition = random.choice(conditions)
-
-    return condition
-
-
-def generate_random_date():
-    # Generate a random date string between 2000-01-01 and 2023-12-31
-    start_date = datetime.datetime(2000, 1, 1)
-    end_date = datetime.datetime(2023, 12, 31)
-    random_date = start_date + (end_date - start_date) * random.random()
-    return random_date.strftime('%Y-%m-%d')
-
-
 @app.route('/')
 def index():
     return render_template('index.html')
-
 
 @app.route('/random_queries', methods=['POST', 'GET'])
 def random_queries():
@@ -145,6 +90,60 @@ def restricted_queries():
         return render_template('results.html', query_results=query_results)
     else:
         return render_template('restricted_queries.html')
+
+
+def generate_random_query():
+    table_name = "all_month"
+    fields = [
+        "time", "latitude", "longitude", "depth", "mag", "magType", "nst", "gap", "dmin", "rms",
+        "net", "id", "updated", "place", "type", "horizontalError", "depthError", "magError",
+        "magNst", "status", "locationSource", "magSource"
+    ]
+
+    # Generate a random query to fetch a random tuple
+    random_field = random.choice(fields)
+    query = f"SELECT TOP 1 {random_field} FROM {table_name} ORDER BY NEWID();"
+
+    return query
+
+
+def generate_random_restricted_query():
+    table_name = "all_month"
+    fields = [
+        "time", "latitude", "longitude", "depth", "mag", "magType", "nst", "gap", "dmin", "rms",
+        "net", "id", "updated", "place", "type", "horizontalError", "depthError", "magError",
+        "magNst", "status", "locationSource", "magSource"
+    ]
+
+    # Generate a random restricted condition
+    condition = generate_random_restricted_condition()
+
+    # Generate a random query with the condition
+    random_field = random.choice(fields)
+    query = f"SELECT TOP 1 {random_field} FROM {table_name} WHERE {condition} ORDER BY NEWID();"
+
+    return query
+
+
+def generate_random_restricted_condition():
+    conditions = [
+        "place LIKE '%California%'",
+        f"time BETWEEN '{generate_random_date()}' AND '{generate_random_date()}'",
+        f"mag BETWEEN {random.uniform(0, 10)} AND {random.uniform(0, 10)}"
+    ]
+
+    # Generate a random restricted condition
+    condition = random.choice(conditions)
+
+    return condition
+
+
+def generate_random_date():
+    # Generate a random date string between 2000-01-01 and 2023-12-31
+    start_date = datetime.datetime(2000, 1, 1)
+    end_date = datetime.datetime(2023, 12, 31)
+    random_date = start_date + (end_date - start_date) * random.random()
+    return random_date.strftime('%Y-%m-%d')
 
 
 if __name__ == '__main__':
