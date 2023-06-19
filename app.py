@@ -11,6 +11,9 @@ connection_string = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:prathikhe
 cnxn = pyodbc.connect(connection_string)
 cursor = cnxn.cursor()
 
+# Create a cache dictionary
+query_cache = {}
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -21,21 +24,35 @@ def random_queries():
         num_queries = int(request.form.get('num_queries'))
 
         query_results = []
-        start_time = time.time()
         for _ in range(num_queries):
+            start_time = time.time()  # Start time for each query
+
             # Generate a random query
             query = generate_random_query()
 
-            # Execute the query
-            cursor.execute(query)
+            # Check if the result exists in the cache
+            result = mc.get(query)
 
-            # Fetch the results (optional)
-            results = cursor.fetchall()
+            if result:
+                # Result found in the cache
+                query_time = "From Cache"
+                result_tuple = (result, query_time)
+            else:
+                # Execute the query
+                cursor.execute(query)
 
-            # Get the execution time
-            query_time = time.time() - start_time
+                # Fetch the results (optional)
+                results = cursor.fetchall()
 
-            query_results.append((query, query_time))
+                # Get the execution time
+                query_time = time.time() - start_time
+
+                # Store the result in the cache
+                mc.set(query, results)
+
+                result_tuple = (results, query_time)
+
+            query_results.append((query, result_tuple))
 
         return render_template('results.html', query_results=query_results)
     else:
@@ -54,16 +71,29 @@ def restricted_queries():
             # Generate a random restricted query
             query = generate_random_restricted_query()
 
-            # Execute the query
-            cursor.execute(query)
+            # Check if the result exists in the cache
+            result = mc.get(query)
 
-            # Fetch the results (optional)
-            results = cursor.fetchall()
+            if result:
+                # Result found in the cache
+                query_time = "From Cache"
+                result_tuple = (result, query_time)
+            else:
+                # Execute the query
+                cursor.execute(query)
 
-            # Get the execution time
-            query_time = time.time() - start_time
+                # Fetch the results (optional)
+                results = cursor.fetchall()
 
-            query_results.append((query, query_time))
+                # Get the execution time
+                query_time = time.time() - start_time
+
+                # Store the result in the cache
+                mc.set(query, results)
+
+                result_tuple = (results, query_time)
+
+            query_results.append((query, result_tuple))
 
         return render_template('results.html', query_results=query_results)
     else:
@@ -106,7 +136,7 @@ def generate_random_restricted_query():
 
 def generate_random_restricted_condition():
     conditions = [
-        "place LIKE '%CA%'",
+        "place LIKE '%California%'",
         f"time BETWEEN '{generate_random_date()}' AND '{generate_random_date()}'",
         f"mag BETWEEN {random.uniform(0, 10)} AND {random.uniform(0, 10)}"
     ]
@@ -123,7 +153,6 @@ def generate_random_date():
     end_date = datetime.datetime(2023, 12, 31)
     random_date = start_date + (end_date - start_date) * random.random()
     return random_date.strftime('%Y-%m-%d')
-
 
 
 if __name__ == '__main__':
