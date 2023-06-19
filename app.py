@@ -11,9 +11,6 @@ connection_string = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:prathikhe
 cnxn = pyodbc.connect(connection_string)
 cursor = cnxn.cursor()
 
-# Create a cache dictionary
-query_cache = {}
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -24,31 +21,21 @@ def random_queries():
         num_queries = int(request.form.get('num_queries'))
 
         query_results = []
+        start_time = time.time()
         for _ in range(num_queries):
             # Generate a random query
             query = generate_random_query()
 
-            # Check if the query result is already cached
-            if query in query_cache:
-                # Retrieve the result from the cache
-                result = query_cache[query]
-                print("Result retrieved from cache")
-            else:
-                start_time = time.time()
-                # Execute the query
-                cursor.execute(query)
+            # Execute the query
+            cursor.execute(query)
 
-                # Fetch the results (optional)
-                results = cursor.fetchall()
+            # Fetch the results (optional)
+            results = cursor.fetchall()
 
-                # Get the execution time
-                query_time = time.time() - start_time
+            # Get the execution time
+            query_time = time.time() - start_time
 
-                # Store the result in the cache
-                query_cache[query] = (results, query_time)
-                print("Result fetched from the database")
-
-            query_results.append((query, query_cache[query][0], query_cache[query][1]))
+            query_results.append((query, query_time))
 
         return render_template('results.html', query_results=query_results)
     else:
@@ -61,31 +48,21 @@ def restricted_queries():
         num_queries = int(request.form.get('num_queries'))
 
         query_results = []
+        start_time = time.time()
         for _ in range(num_queries):
             # Generate a random restricted query
             query = generate_random_restricted_query()
 
-            # Check if the query result is already cached
-            if query in query_cache:
-                # Retrieve the result from the cache
-                result = query_cache[query]
-                print("Result retrieved from cache")
-            else:
-                start_time = time.time()
-                # Execute the query
-                cursor.execute(query)
+            # Execute the query
+            cursor.execute(query)
 
-                # Fetch the results (optional)
-                results = cursor.fetchall()
+            # Fetch the results (optional)
+            results = cursor.fetchall()
 
-                # Get the execution time
-                query_time = time.time() - start_time
+            # Get the execution time
+            query_time = time.time() - start_time
 
-                # Store the result in the cache
-                query_cache[query] = (results, query_time)
-                print("Result fetched from the database")
-
-            query_results.append((query, query_cache[query][0], query_cache[query][1]))
+            query_results.append((query, query_time))
 
         return render_template('results.html', query_results=query_results)
     else:
@@ -144,6 +121,7 @@ def generate_random_date():
     end_date = datetime.datetime(2023, 12, 31)
     random_date = start_date + (end_date - start_date) * random.random()
     return random_date.strftime('%Y-%m-%d')
+
 
 
 if __name__ == '__main__':
