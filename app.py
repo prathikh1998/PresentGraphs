@@ -103,16 +103,25 @@ def generate_random_restricted_query():
 
 def generate_random_restricted_condition():
     conditions = [
-        "place LIKE '%CA%'",
-        "distance < 100",
-        "time BETWEEN 'start_time' AND 'end_time'",
-        "mag BETWEEN min_magnitude AND max_magnitude"
+        "place LIKE '%California%'",
+        f"SQRT(POWER(latitude - {random.uniform(-90, 90)}, 2) + POWER(longitude - {random.uniform(-180, 180)}, 2)) < 100",
+        f"time BETWEEN '{generate_random_date()}' AND '{generate_random_date()}'",
+        f"mag BETWEEN {random.uniform(0, 80)} AND {random.uniform(0, 80)}"
     ]
 
     # Generate a random restricted condition
     condition = random.choice(conditions)
 
     return condition
+
+
+def generate_random_date():
+    # Generate a random date string between 2000-01-01 and 2023-12-31
+    start_date = datetime.datetime(2000, 1, 1)
+    end_date = datetime.datetime(2023, 12, 31)
+    random_date = start_date + (end_date - start_date) * random.random()
+    return random_date.strftime('%Y-%m-%d')
+
 
 
 if __name__ == '__main__':
