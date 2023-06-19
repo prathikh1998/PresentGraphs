@@ -7,27 +7,26 @@
 
 <body>
     <h1>Restricted Queries</h1>
-
-    <form action="/generate_restricted_queries" method="POST">
-        <label for="latitude">Latitude:</label>
-        <input type="text" id="latitude" name="latitude" required>
-        <br>
-        <label for="longitude">Longitude:</label>
-        <input type="text" id="longitude" name="longitude" required>
-        <br>
-        <label for="start_date">Start Date:</label>
-        <input type="date" id="start_date" name="start_date" required>
-        <br>
-        <label for="end_date">End Date:</label>
-        <input type="date" id="end_date" name="end_date" required>
-        <br>
+    <form method="POST" action="/restricted_results">
+        <label for="location">Location:</label>
+        <input type="text" id="location" name="location"><br><br>
+        
+        <label for="distance">Distance (in km):</label>
+        <input type="text" id="distance" name="distance"><br><br>
+        
+        <label for="start_time">Start Time:</label>
+        <input type="text" id="start_time" name="start_time"><br><br>
+        
+        <label for="end_time">End Time:</label>
+        <input type="text" id="end_time" name="end_time"><br><br>
+        
         <label for="min_magnitude">Minimum Magnitude:</label>
-        <input type="number" id="min_magnitude" name="min_magnitude" step="0.1" required>
-        <br>
+        <input type="text" id="min_magnitude" name="min_magnitude"><br><br>
+        
         <label for="max_magnitude">Maximum Magnitude:</label>
-        <input type="number" id="max_magnitude" name="max_magnitude" step="0.1" required>
-        <br><br>
-        <input type="submit" value="Generate Restricted Queries">
+        <input type="text" id="max_magnitude" name="max_magnitude"><br><br>
+        
+        <input type="submit" value="Submit">
     </form>
 </body>
 
