@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 import random
+import datetime
 import time
 import pyodbc
 
@@ -104,9 +105,8 @@ def generate_random_restricted_query():
 def generate_random_restricted_condition():
     conditions = [
         "place LIKE '%California%'",
-        f"SQRT(POWER(latitude - {random.uniform(-90, 90)}, 2) + POWER(longitude - {random.uniform(-180, 180)}, 2)) < 100",
         f"time BETWEEN '{generate_random_date()}' AND '{generate_random_date()}'",
-        f"mag BETWEEN {random.uniform(0, 80)} AND {random.uniform(0, 80)}"
+        f"mag BETWEEN {random.uniform(0, 10)} AND {random.uniform(0, 10)}"
     ]
 
     # Generate a random restricted condition
