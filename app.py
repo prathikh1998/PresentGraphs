@@ -104,7 +104,7 @@ def generate_random_restricted_query():
 
 def generate_random_restricted_condition():
     conditions = [
-        "place LIKE '%California%'",
+        "place LIKE '%CA%'",
         f"time BETWEEN '{generate_random_date()}' AND '{generate_random_date()}'",
         f"mag BETWEEN {random.uniform(0, 10)} AND {random.uniform(0, 10)}"
     ]
