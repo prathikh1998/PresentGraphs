@@ -32,21 +32,22 @@
     <table>
         <tr>
             <th>Query</th>
-            <th>Results</th>
             <th>Time Taken</th>
         </tr>
 
         {% for query, query_time, results in query_results %}
         <tr>
             <td>{{ query }}</td>
-            <td>
+            <td class="query-time">{{ query_time }} seconds</td>
+        </tr>
+        <tr>
+            <td colspan="2">
                 <ul>
                     {% for result in results %}
-                    <li>{{ result }}</li>
+                    <li>{{ result[0] }}</li>
                     {% endfor %}
                 </ul>
             </td>
-            <td class="query-time">{{ query_time }} seconds</td>
         </tr>
         {% endfor %}
     </table>
