@@ -22,32 +22,40 @@
         .query-time {
             font-weight: bold;
         }
+
+        .source {
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
     <h1>Query Results</h1>
     <p>Total number of queries executed: {{ num_queries }}</p>
-    <p>Execution time: {{ execution_time }} seconds</p>
 
     <table>
         <tr>
             <th>Query</th>
             <th>Time Taken</th>
+            <th>Results</th>
+            <th>Source</th>
         </tr>
 
-        {% for query, query_time, results in query_results %}
+        {% for query, query_time, results, source in query_results %}
         <tr>
             <td>{{ query }}</td>
             <td class="query-time">{{ query_time }} seconds</td>
-        </tr>
-        <tr>
-            <td colspan="2">
+            <td>
+                {% if source == "from cache" %}
+                <p>Data retrieved from cache.</p>
+                {% else %}
                 <ul>
                     {% for result in results %}
-                    <li>{{ result[0] }}</li>
+                    <li>{{ result }}</li>
                     {% endfor %}
                 </ul>
+                {% endif %}
             </td>
+            <td class="source">{{ source }}</td>
         </tr>
         {% endfor %}
     </table>
