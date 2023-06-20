@@ -79,7 +79,7 @@ def generate_random_query():
 
     # Generate a random query to fetch a random tuple
     random_field = random.choice(fields)
-    query = f"SELECT{random_field} from {table_name} ORDER BY NEWID();"
+    query = f"SELECT TOP 10 {random_field} FROM {table_name} ORDER BY NEWID();"
 
     return query
 
