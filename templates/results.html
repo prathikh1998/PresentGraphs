@@ -29,23 +29,27 @@
     <p>Total number of queries executed: {{ num_queries }}</p>
     <p>Execution time: {{ execution_time }} seconds</p>
 
-    {% for query, query_time, results in query_results %}
-        <h2>Query: {{ query }}</h2>
-        <table>
-            <tr>
-                {% for field in results[0] %}
-                    <th>{{ field[0] }}</th>
-                {% endfor %}
-            </tr>
-            {% for row in results %}
-                <tr>
-                    {% for field in row %}
-                        <td>{{ field }}</td>
+    <table>
+        <tr>
+            <th>Query</th>
+            <th>Time Taken</th>
+        </tr>
+
+        {% for query, query_time, results in query_results %}
+        <tr>
+            <td>{{ query }}</td>
+            <td class="query-time">{{ query_time }} seconds</td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <ul>
+                    {% for result in results %}
+                    <li>{{ result[0] }}</li>
                     {% endfor %}
-                </tr>
-            {% endfor %}
-        </table>
-        <p>Time Taken: {{ query_time }} seconds</p>
-    {% endfor %}
+                </ul>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>
