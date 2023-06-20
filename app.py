@@ -3,6 +3,7 @@ import random
 import datetime
 import time
 import pyodbc
+import redis
 
 app = Flask(__name__)
 
@@ -11,8 +12,9 @@ connection_string = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:prathikhe
 cnxn = pyodbc.connect(connection_string)
 cursor = cnxn.cursor()
 
-# Create a cache dictionary
-query_cache = {}
+# Connect to your Azure Redis cache
+redis_connection_string = "quizredis.redis.cache.windows.net:6380,password=nkp3itVINJCqSXZDygXgqoo1baX48GwDTAzCaM4ZFX0=,ssl=True,abortConnect=False"
+redis_cache = redis.from_url(redis_connection_string)
 
 @app.route('/')
 def index():
@@ -25,16 +27,19 @@ def random_queries():
 
         query_results = []
         for _ in range(num_queries):
+            start_time = time.time()  # Start time for each query
+
             # Generate a random query
             query = generate_random_query()
 
-            # Check if the query result is already cached
-            if query in query_cache:
-                # Retrieve the result from the cache
-                result = query_cache[query]
-                print("Result retrieved from cache")
+            # Check if the result exists in the cache
+            result = redis_cache.get(query)
+
+            if result:
+                # Result found in the cache
+                query_time = "From Cache"
+                result = eval(result)  # Convert the cached result from string to tuple
             else:
-                start_time = time.time()
                 # Execute the query
                 cursor.execute(query)
 
@@ -45,10 +50,9 @@ def random_queries():
                 query_time = time.time() - start_time
 
                 # Store the result in the cache
-                query_cache[query] = (results, query_time)
-                print("Result fetched from the database")
+                redis_cache.set(query, str((results, query_time)))  # Store the result as a string
 
-            query_results.append((query, query_cache[query][0], query_cache[query][1]))
+            query_results.append((query, result))
 
         return render_template('results.html', query_results=query_results)
     else:
@@ -62,16 +66,19 @@ def restricted_queries():
 
         query_results = []
         for _ in range(num_queries):
+            start_time = time.time()  # Start time for each query
+
             # Generate a random restricted query
             query = generate_random_restricted_query()
 
-            # Check if the query result is already cached
-            if query in query_cache:
-                # Retrieve the result from the cache
-                result = query_cache[query]
-                print("Result retrieved from cache")
+            # Check if the result exists in the cache
+            result = redis_cache.get(query)
+
+            if result:
+                # Result found in the cache
+                query_time = "From Cache"
+                result = eval(result)  # Convert the cached result from string to tuple
             else:
-                start_time = time.time()
                 # Execute the query
                 cursor.execute(query)
 
@@ -82,10 +89,9 @@ def restricted_queries():
                 query_time = time.time() - start_time
 
                 # Store the result in the cache
-                query_cache[query] = (results, query_time)
-                print("Result fetched from the database")
+                redis_cache.set(query, str((results, query_time)))  # Store the result as a string
 
-            query_results.append((query, query_cache[query][0], query_cache[query][1]))
+            query_results.append((query, result))
 
         return render_template('results.html', query_results=query_results)
     else:
@@ -127,7 +133,7 @@ def generate_random_restricted_query():
 
 def generate_random_restricted_condition():
     conditions = [
-        "place LIKE '%California%'",
+        "place LIKE '%CA%'",
         f"time BETWEEN '{generate_random_date()}' AND '{generate_random_date()}'",
         f"mag BETWEEN {random.uniform(0, 10)} AND {random.uniform(0, 10)}"
     ]
