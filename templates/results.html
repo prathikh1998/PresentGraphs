@@ -32,10 +32,11 @@
     <table>
         <tr>
             <th>Query</th>
+            <th>Results</th>
             <th>Time Taken</th>
         </tr>
 
-        {% for query, query_time in query_results %}
+        {% for query, query_time, results in query_results %}
         <tr>
             <td>{{ query }}</td>
             <td>
