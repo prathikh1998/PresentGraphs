@@ -2,6 +2,5 @@ flask
 pyodbc
 scikit-learn
 geopy
-redis
 Flask-WTF
 
