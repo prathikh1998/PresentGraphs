@@ -13,7 +13,7 @@ cnxn = pyodbc.connect(connection_string)
 cursor = cnxn.cursor()
 
 # Connect to your Redis cache
-redis_connection_string = "quizredis.redis.cache.windows.net:6380,password=nkp3itVINJCqSXZDygXgqoo1baX48GwDTAzCaM4ZFX0=,ssl=True,abortConnect=False"
+redis_connection_string = "redis://quizredis.redis.cache.windows.net:6380,password=nkp3itVINJCqSXZDygXgqoo1baX48GwDTAzCaM4ZFX0=,ssl=True,abortConnect=False"
 redis_cache = redis.Redis.from_url(redis_connection_string)
 
 @app.route('/')
