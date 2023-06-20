@@ -3,6 +3,7 @@ import random
 import datetime
 import time
 import pyodbc
+import redis
 
 app = Flask(__name__)
 
@@ -10,6 +11,10 @@ app = Flask(__name__)
 connection_string = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:prathikhegde.database.windows.net,1433;DATABASE=ASSS2;UID=prathikhegde;PWD=Tco7890$"
 cnxn = pyodbc.connect(connection_string)
 cursor = cnxn.cursor()
+
+# Connect to your Redis cache
+redis_connection_string = "quizredis.redis.cache.windows.net:6380,password=nkp3itVINJCqSXZDygXgqoo1baX48GwDTAzCaM4ZFX0=,ssl=True,abortConnect=False"
+redis_cache = redis.Redis.from_url(redis_connection_string)
 
 @app.route('/')
 def index():
@@ -21,21 +26,32 @@ def random_queries():
         num_queries = int(request.form.get('num_queries'))
 
         query_results = []
-        start_time = time.time()
         for _ in range(num_queries):
             # Generate a random query
             query = generate_random_query()
 
-            # Execute the query
-            cursor.execute(query)
+            start_time = time.time()
 
-            # Fetch the results
-            results = cursor.fetchall()
+            # Check if query results are in cache
+            if redis_cache.exists(query):
+                # Retrieve results from cache
+                results = redis_cache.get(query)
+                query_time = time.time() - start_time
+                source = "from cache"
+            else:
+                # Execute the query
+                cursor.execute(query)
 
-            # Get the execution time
-            query_time = time.time() - start_time
+                # Fetch the results
+                results = cursor.fetchall()
 
-            query_results.append((query, query_time, results))
+                # Store results in cache
+                redis_cache.set(query, results)
+
+                query_time = time.time() - start_time
+                source = "executed"
+
+            query_results.append((query, query_time, results, source))
 
         return render_template('results.html', query_results=query_results)
     else:
@@ -48,25 +64,37 @@ def restricted_queries():
         num_queries = int(request.form.get('num_queries'))
 
         query_results = []
-        start_time = time.time()
         for _ in range(num_queries):
             # Generate a random restricted query
             query = generate_random_restricted_query()
 
-            # Execute the query
-            cursor.execute(query)
+            start_time = time.time()
 
-            # Fetch the results
-            results = cursor.fetchall()
+            # Check if query results are in cache
+            if redis_cache.exists(query):
+                # Retrieve results from cache
+                results = redis_cache.get(query)
+                query_time = time.time() - start_time
+                source = "from cache"
+            else:
+                # Execute the query
+                cursor.execute(query)
 
-            # Get the execution time
-            query_time = time.time() - start_time
+                # Fetch the results
+                results = cursor.fetchall()
 
-            query_results.append((query, query_time, results))
+                # Store results in cache
+                redis_cache.set(query, results)
+
+                query_time = time.time() - start_time
+                source = "executed"
+
+            query_results.append((query, query_time, results, source))
 
         return render_template('results.html', query_results=query_results)
     else:
         return render_template('restricted_queries.html')
+
 
 
 def generate_random_query():
@@ -79,7 +107,7 @@ def generate_random_query():
 
     # Generate a random query to fetch a random tuple
     random_field = random.choice(fields)
-    query = f"SELECT{random_field} from {table_name} ORDER BY NEWID();"
+    query = f"SELECT {random_field} FROM {table_name} ORDER BY NEWID();"
 
     return query
 
@@ -97,7 +125,7 @@ def generate_random_restricted_query():
 
     # Generate a random query with the condition
     random_field = random.choice(fields)
-    query = f"SELECT TOP 10 {random_field} FROM {table_name} WHERE {condition} ORDER BY NEWID();"
+    query = f"SELECT {random_field} FROM {table_name} WHERE {condition} ORDER BY NEWID();"
 
     return query
 
