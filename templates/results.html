@@ -33,13 +33,13 @@
         <h2>Query: {{ query }}</h2>
         <table>
             <tr>
-                {% for field in results[0] %}
-                    <th>{{ field[0] }}</th>
+                {% for field in results[0].keys() %}
+                    <th>{{ field }}</th>
                 {% endfor %}
             </tr>
             {% for row in results %}
                 <tr>
-                    {% for field in row %}
+                    {% for field in row.values() %}
                         <td>{{ field }}</td>
                     {% endfor %}
                 </tr>
