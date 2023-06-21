@@ -13,7 +13,9 @@ connection_string = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:prathikhe
 cnxn = pyodbc.connect(connection_string)
 cursor = cnxn.cursor()
 
-# ...
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 def fetch_results_from_cache(query):
     # Check if the query result is cached
