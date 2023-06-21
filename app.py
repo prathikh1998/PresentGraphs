@@ -17,8 +17,6 @@ def index():
 
 # ...
 
-# ...
-
 @app.route('/random_queries', methods=['POST', 'GET'])
 def random_queries():
     if request.method == 'POST':
@@ -40,8 +38,8 @@ def random_queries():
             rows = []
             for row in results:
                 row_dict = {}
-                for column in cursor.description:
-                    row_dict[column[0]] = row[column[0]]
+                for idx, column in enumerate(cursor.description):
+                    row_dict[column[0]] = row[idx]
                 rows.append(row_dict)
 
             # Get the execution time
@@ -54,7 +52,6 @@ def random_queries():
         return render_template('random_queries.html')
 
 # ...
-
 
 
 @app.route('/restricted_queries', methods=['POST', 'GET'])
