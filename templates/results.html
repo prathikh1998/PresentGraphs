@@ -14,23 +14,6 @@
             <li><strong>Latitude:</strong> {{ selected_city.lat }}</li>
             <li><strong>Longitude:</strong> {{ selected_city.lon }}</li>
         </ul>
-        
-        {% if nearby_cities %}
-            <h2>Nearby Cities</h2>
-            <ul>
-            {% for city in nearby_cities %}
-                <li>
-                    <strong>City:</strong> {{ city.City }},
-                    <strong>State:</strong> {{ city.State }},
-                    <strong>Population:</strong> {{ city.Population }},
-                    <strong>Latitude:</strong> {{ city.lat }},
-                    <strong>Longitude:</strong> {{ city.lon }}
-                </li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p>No nearby cities found.</p>
-        {% endif %}
     {% else %}
         <p>No city found.</p>
     {% endif %}
