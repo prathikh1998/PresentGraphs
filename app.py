@@ -93,7 +93,7 @@ def search():
     cursor = conn.cursor()
     
     cursor.execute('''
-        SELECT TOP (?) * FROM city_cloud WHERE Population >= ? AND Population <= ? ORDER BY NEWID()
+        SELECT TOP ? * FROM city_cloud WHERE Population >= ? AND Population <= ? ORDER BY NEWID()
     ''', (many,min_pop,max_pop))
     
     selected_city = cursor.fetchall()
@@ -129,44 +129,50 @@ def population_increment():
 
         start_time = time.time()  # Start the timer
 
-        # Retrieve the cities within the specified state and population range from the database
-        conn = pyodbc.connect(connection_string)
-        cursor = conn.cursor()
-        cursor.execute('''
-            SELECT * FROM city_cloud WHERE State = ? AND Population >= ? AND Population <= ?
-        ''', (state, min_population, max_population))
-        cities = cursor.fetchall()
-        conn.close()
-
-        # Increment the population of each city within the specified range
-        modified_cities = []
-        for city in cities:
-            modified_population = city.Population + increment
-            modified_cities.append({
-                'City': city.City,
-                'State': city.State,
-                'OriginalPopulation': city.Population,
-                'NewPopulation': modified_population,
-                'Latitude': city.lat,
-                'Longitude': city.lon
-            })
-
-            # Update the population of the city in the database
+        try:
+            # Retrieve the cities within the specified state and population range from the database
             conn = pyodbc.connect(connection_string)
             cursor = conn.cursor()
             cursor.execute('''
-                UPDATE city SET Population = ? WHERE City = ? AND State = ?
-            ''', (modified_population, city.City, city.State))
-            conn.commit()
+                SELECT * FROM city_cloud WHERE State = ? AND Population >= ? AND Population <= ?
+            ''', (state, min_population, max_population))
+            cities = cursor.fetchall()
             conn.close()
 
-        total_time = time.time() - start_time  # Calculate total time
+            # Increment the population of each city within the specified range
+            modified_cities = []
+            for city in cities:
+                modified_population = city.Population + increment
+                modified_cities.append({
+                    'City': city.City,
+                    'State': city.State,
+                    'OriginalPopulation': city.Population,
+                    'NewPopulation': modified_population,
+                    'Latitude': city.lat,
+                    'Longitude': city.lon
+                })
 
-        # Render the population increment results page with modified cities and total time
-        return render_template('increment_population_results.html', modified_cities=modified_cities, total_time=total_time)
+                # Update the population of the city in the database
+                conn = pyodbc.connect(connection_string)
+                cursor = conn.cursor()
+                cursor.execute('''
+                    UPDATE city_cloud SET Population = ? WHERE City = ? AND State = ?
+                ''', (modified_population, city.City, city.State))
+                conn.commit()
+                conn.close()
+
+            total_time = time.time() - start_time  # Calculate total time
+
+            # Render the population increment results page with modified cities and total time
+            return render_template('increment_population_results.html', modified_cities=modified_cities, total_time=total_time)
+
+        except Exception as e:
+            error_message = str(e)
+            return render_template('error.html', error_message=error_message)
 
     # If it's a GET request, render the population increment form
     return render_template('population_increment.html')
+
 
 @app.route('/add', methods=['POST'])
 def add():
