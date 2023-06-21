@@ -15,6 +15,8 @@ cursor = cnxn.cursor()
 def index():
     return render_template('index.html')
 
+# ...
+
 @app.route('/random_queries', methods=['POST', 'GET'])
 def random_queries():
     if request.method == 'POST':
@@ -31,6 +33,9 @@ def random_queries():
 
             # Fetch the results
             results = cursor.fetchall()
+
+            # Convert the pyodbc.Row objects to dictionaries
+            results = [dict(row) for row in results]
 
             # Get the execution time
             query_time = time.time() - start_time
