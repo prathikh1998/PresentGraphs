@@ -3,8 +3,6 @@ import random
 import datetime
 import time
 import pyodbc
-import redis
-import json
 
 app = Flask(__name__)
 
@@ -16,6 +14,12 @@ cursor = cnxn.cursor()
 @app.route('/')
 def index():
     return render_template('index.html')
+
+# ...
+
+# ...
+
+# ...
 
 @app.route('/random_queries', methods=['POST', 'GET'])
 def random_queries():
@@ -29,34 +33,24 @@ def random_queries():
             # Generate a random query
             query = generate_random_query()
 
-            # Check if the query result is cached
-            result = fetch_results_from_cache(query)
+            # Execute the query
+            start_time = time.time()  # Start the timer
+            cursor.execute(query)
 
-            if result is not None:
-                # Use the cached result
-                query_time, rows = result
-            else:
-                # Execute the query
-                start_time = time.time()  # Start the timer
-                cursor.execute(query)
+            # Fetch the results
+            results = cursor.fetchall()
 
-                # Fetch the results
-                results = cursor.fetchall()
+            # Convert the pyodbc.Row objects to dictionaries
+            rows = []
+            for row in results:
+                row_dict = {}
+                for idx, column in enumerate(cursor.description):
+                    row_dict[column[0]] = row[idx]
+                rows.append(row_dict)
 
-                # Convert the pyodbc.Row objects to dictionaries
-                rows = []
-                for row in results:
-                    row_dict = {}
-                    for idx, column in enumerate(cursor.description):
-                        row_dict[column[0]] = row[idx]
-                    rows.append(row_dict)
-
-                # Get the execution time
-                query_time = time.time() - start_time
-                total_time += query_time  # Add query time to the total
-
-                # Cache the results
-                cache_results(query, (query_time, rows))
+            # Get the execution time
+            query_time = time.time() - start_time
+            total_time += query_time  # Add query time to the total
 
             query_results.append((query, query_time, rows))
 
@@ -64,21 +58,7 @@ def random_queries():
     else:
         return render_template('random_queries.html')
 
-# ... (other routes and functions)
-
-def fetch_results_from_cache(query):
-    # Check if the query result is cached
-    result = cache.get(query)
-
-    if result is not None:
-        # Decode the cached result and return it
-        return json.loads(result)
-
-    return None
-
-def cache_results(query, result):
-    # Convert the result to a JSON string before caching
-    cache.set(query, json.dumps(result))
+# ...
 
 @app.route('/restricted_queries', methods=['POST', 'GET'])
 def restricted_queries():
@@ -118,6 +98,11 @@ def restricted_queries():
             return render_template('no_results.html')  # Create a new template to display a message when no results are found
     else:
         return render_template('restricted_queries.html')
+
+
+
+
+
 
 def generate_random_query():
     table_name = "all_month"
