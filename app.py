@@ -17,6 +17,8 @@ def index():
 
 # ...
 
+# ...
+
 @app.route('/random_queries', methods=['POST', 'GET'])
 def random_queries():
     if request.method == 'POST':
@@ -35,16 +37,24 @@ def random_queries():
             results = cursor.fetchall()
 
             # Convert the pyodbc.Row objects to dictionaries
-            results = [dict(row) for row in results]
+            rows = []
+            for row in results:
+                row_dict = {}
+                for column in cursor.description:
+                    row_dict[column[0]] = row[column[0]]
+                rows.append(row_dict)
 
             # Get the execution time
             query_time = time.time() - start_time
 
-            query_results.append((query, query_time, results))
+            query_results.append((query, query_time, rows))
 
         return render_template('results.html', query_results=query_results)
     else:
         return render_template('random_queries.html')
+
+# ...
+
 
 
 @app.route('/restricted_queries', methods=['POST', 'GET'])
