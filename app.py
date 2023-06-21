@@ -92,9 +92,11 @@ def search():
     conn = pyodbc.connect(connection_string)
     cursor = conn.cursor()
     
-    cursor.execute('''
-        SELECT TOP ? * FROM city_cloud WHERE Population >= ? AND Population <= ? ORDER BY NEWID()
-    ''', (many,min_pop,max_pop))
+    query = '''
+        SELECT TOP {} * FROM city_cloud WHERE Population >= ? AND Population <= ? ORDER BY NEWID()
+    '''.format(many)
+
+    cursor.execute(query, (min_pop, max_pop))
     
     selected_city = cursor.fetchall()
     conn.close()
