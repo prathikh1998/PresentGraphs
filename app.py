@@ -7,12 +7,7 @@ import redis
 import json
 
 app = Flask(__name__)
-cache = redis.Redis(
-    host='quizredis.redis.cache.windows.net',
-    port=6380,
-    password='ynkp3itVINJCqSXZDygXgqoo1baX48GwDTAzCaM4ZFX0=',
-    ssl=True
-)
+cache = redis.Redis(host='quizredis.redis.cache.windows.net', port=6380, password='ynkp3itVINJCqSXZDygXgqoo1baX48GwDTAzCaM4ZFX0=', ssl=True)
 
 # Connect to your Azure SQL database
 connection_string = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:prathikhegde.database.windows.net,1433;DATABASE=ASSS2;UID=prathikhegde;PWD=Tco7890$"
@@ -26,57 +21,6 @@ def index():
 
 @app.route('/random_queries', methods=['POST', 'GET'])
 def random_queries():
-    try:
-        if request.method == 'POST':
-            num_queries = int(request.form.get('num_queries'))
-
-            query_results = []
-            total_time = 0  # Initialize total time
-
-            for _ in range(num_queries):
-                # Generate a random query
-                query = generate_random_query()
-
-                # Check if the result is cached
-                start_time = time.time()  # Start the timer
-                result = fetch_results_from_cache(query)
-                query_time = time.time() - start_time
-
-                if result is None:
-                    # Execute the query and fetch the results
-                    start_time = time.time()  # Start the timer
-                    cursor.execute(query)
-                    results = cursor.fetchall()
-
-                    # Convert the pyodbc.Row objects to dictionaries
-                    rows = []
-                    for row in results:
-                        row_dict = {}
-                        for idx, column in enumerate(cursor.description):
-                            row_dict[column[0]] = row[idx]
-                        rows.append(row_dict)
-
-                    # Get the execution time
-                    query_time += time.time() - start_time
-                    total_time += query_time  # Add query time to the total
-
-                    query_results.append((query, query_time, rows))
-
-                    # Cache the results
-                    cache_results(query, rows)
-                else:
-                    # Use the cached results
-                    query_results.append((query, query_time, result))
-
-            return render_template('results.html', query_results=query_results, total_time=total_time)
-        else:
-            return render_template('random_queries.html')
-    except Exception as e:
-        # Log the exception
-        app.logger.exception(e)
-
-@app.route('/restricted_queries', methods=['POST', 'GET'])
-def restricted_queries():
     if request.method == 'POST':
         num_queries = int(request.form.get('num_queries'))
 
@@ -84,44 +28,74 @@ def restricted_queries():
         total_time = 0  # Initialize total time
 
         for _ in range(num_queries):
-            # Generate a random restricted query
-            query = generate_random_restricted_query()
+            # Generate a random query
+            query = generate_random_query()
 
-            # Check if the result is cached
+            # Execute the query
             start_time = time.time()  # Start the timer
-            result = fetch_results_from_cache(query)
+            cursor.execute(query)
+
+            # Fetch the results
+            results = cursor.fetchall()
+
+            # Convert the pyodbc.Row objects to dictionaries
+            rows = []
+            for row in results:
+                row_dict = {}
+                for idx, column in enumerate(cursor.description):
+                    row_dict[column[0]] = row[idx]
+                rows.append(row_dict)
+
+            # Get the execution time
             query_time = time.time() - start_time
+            total_time += query_time  # Add query time to the total
 
-            if result is None:
-                # Execute the query and fetch the results
-                start_time = time.time()  # Start the timer
-                cursor.execute(query)
-                results = cursor.fetchall()
-
-                # Convert the pyodbc.Row objects to dictionaries
-                rows = []
-                for row in results:
-                    row_dict = {}
-                    for idx, column in enumerate(cursor.description):
-                        row_dict[column[0]] = row[idx]
-                    rows.append(row_dict)
-
-                # Get the execution time
-                query_time += time.time() - start_time
-                total_time += query_time  # Add query time to the total
-
-                query_results.append((query, query_time, rows))
-
-                # Cache the results
-                cache_results(query, rows)
-            else:
-                # Use the cached results
-                query_results.append((query, query_time, result))
+            query_results.append((query, query_time, rows))
 
         return render_template('results.html', query_results=query_results, total_time=total_time)
     else:
-        return render_template('restricted_queries.html')
+        return render_template('random_queries.html')
 
+# ...
+
+@app.route('/restricted_queries', methods=['POST', 'GET'])
+def restricted_queries():
+    if request.method == 'POST':
+        num_queries = int(request.form.get('num_queries'))
+
+        query_results = []
+        start_time = time.time()
+        for _ in range(num_queries):
+            # Generate a random restricted query
+            query = generate_random_restricted_query()
+
+            # Execute the query
+            cursor.execute(query)
+
+            # Fetch the results
+            results = cursor.fetchall()
+
+            # Convert the pyodbc.Row objects to dictionaries
+            rows = []
+            for row in results:
+                row_dict = {}
+                for idx, column in enumerate(cursor.description):
+                    row_dict[column[0]] = row[idx]
+                rows.append(row_dict)
+
+            # Get the execution time
+            query_time = time.time() - start_time
+
+            query_results.append((query, query_time, rows))
+
+        total_time = time.time() - start_time  # Calculate the total time
+
+        if query_results:
+            return render_template('results.html', query_results=query_results, total_time=total_time)  # Pass total_time to the template
+        else:
+            return render_template('no_results.html')  # Create a new template to display a message when no results are found
+    else:
+        return render_template('restricted_queries.html')
 
 def fetch_results_from_cache(query):
     # Check if the query result is cached
