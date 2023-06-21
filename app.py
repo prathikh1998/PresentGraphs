@@ -17,56 +17,72 @@ cursor = cnxn.cursor()
 def index():
     return render_template('index.html')
 
+def fetch_results_from_cache(query):
+    # Check if the query result is cached
+    if cache.exists(query):
+        # Fetch the cached result
+        result = cache.get(query)
+        return result.decode('utf-8')
 
+    return None
+
+def cache_results(query, result):
+    # Cache the query result
+    cache.set(query, result)
 
 # ...
 
 @app.route('/random_queries', methods=['POST', 'GET'])
 def random_queries():
-    if request.method == 'POST':
-        num_queries = int(request.form.get('num_queries'))
+    try:
+        
+        if request.method == 'POST':
+            num_queries = int(request.form.get('num_queries'))
 
-        query_results = []
-        total_time = 0  # Initialize total time
+            query_results = []
+            total_time = 0  # Initialize total time
 
-        for _ in range(num_queries):
+            for _ in range(num_queries):
             # Generate a random query
-            query = generate_random_query()
+                query = generate_random_query()
 
             # Check if the result is cached
-            start_time = time.time()  # Start the timer
-            result = fetch_results_from_cache(query)
-            query_time = time.time() - start_time
-
-            if result is None:
-                # Execute the query and fetch the results
                 start_time = time.time()  # Start the timer
-                cursor.execute(query)
-                results = cursor.fetchall()
+                result = fetch_results_from_cache(query)
+                query_time = time.time() - start_time
+
+                if result is None:
+                # Execute the query and fetch the results
+                    start_time = time.time()  # Start the timer
+                    cursor.execute(query)
+                    results = cursor.fetchall()
 
                 # Convert the pyodbc.Row objects to dictionaries
-                rows = []
-                for row in results:
-                    row_dict = {}
-                    for idx, column in enumerate(cursor.description):
-                        row_dict[column[0]] = row[idx]
-                    rows.append(row_dict)
+                    rows = []
+                    for row in results:
+                        row_dict = {}
+                        for idx, column in enumerate(cursor.description):
+                            row_dict[column[0]] = row[idx]
+                        rows.append(row_dict)
 
                 # Get the execution time
-                query_time += time.time() - start_time
-                total_time += query_time  # Add query time to the total
+                    query_time += time.time() - start_time
+                    total_time += query_time  # Add query time to the total
 
-                query_results.append((query, query_time, rows))
+                    query_results.append((query, query_time, rows))
 
                 # Cache the results
-                cache_results(query, str(rows))
-            else:
+                    cache_results(query, str(rows))
+                else:
                 # Use the cached results
-                query_results.append((query, query_time, eval(result)))
+                    query_results.append((query, query_time, eval(result)))
 
-        return render_template('results.html', query_results=query_results, total_time=total_time)
-    else:
-        return render_template('random_queries.html')
+            return render_template('results.html', query_results=query_results, total_time=total_time)
+        else:
+            return render_template('random_queries.html')
+    except Exception as e:
+        # Log the exception
+        app.logger.exception(e)
 
 @app.route('/restricted_queries', methods=['POST', 'GET'])
 def restricted_queries():
@@ -116,18 +132,7 @@ def restricted_queries():
         return render_template('restricted_queries.html')
 
 # ...
-def fetch_results_from_cache(query):
-    # Check if the query result is cached
-    if cache.exists(query):
-        # Fetch the cached result
-        result = cache.get(query)
-        return result.decode('utf-8')
 
-    return None
-
-def cache_results(query, result):
-    # Cache the query result
-    cache.set(query, result)
 
 def generate_random_query():
     table_name = "all_month"
@@ -184,5 +189,4 @@ def generate_random_date():
 
 
 if __name__ == '__main__':
-    app.debug = True
     app.run()
