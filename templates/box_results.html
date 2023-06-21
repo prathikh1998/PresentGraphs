@@ -15,13 +15,13 @@
                 <strong>State:</strong> {{ city.State }},
                 <strong>Population:</strong> {{ city.Population }},
                 <strong>Latitude:</strong> {{ city.lat }},
-                <strong>Longitude:</strong> {{ city.lon }}
+                <strong>Longitude:</strong> {{ city.lon }},
+                <strong>Time taken:</strong> {{ query_time_per_row }} seconds
             </li>
         {% endfor %}
         </ul>
     {% else %}
         <p>No cities found within the bounding box.</p>
     {% endif %}
-   
 </body>
 </html>
