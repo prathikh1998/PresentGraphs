@@ -5,18 +5,18 @@
 </head>
 <body>
     <h1>City Bounding Box Search Results</h1>
-    <p>Total execution time: {{ query_time_total }} seconds</p>
+    <p>Total execution time: {{ total_time }} seconds</p>
     {% if cities_in_box %}
         <h2>Cities within the Bounding Box</h2>
         <ul>
-        {% for city in cities_in_box %}
+        {% for city, time_taken in cities_in_box %}
             <li>
                 <strong>City:</strong> {{ city.City }},
                 <strong>State:</strong> {{ city.State }},
                 <strong>Population:</strong> {{ city.Population }},
                 <strong>Latitude:</strong> {{ city.lat }},
                 <strong>Longitude:</strong> {{ city.lon }},
-                <strong>Time taken:</strong> {{ query_time_per_row }} seconds
+                <strong>Time taken:</strong> {{ time_taken }} seconds
             </li>
         {% endfor %}
         </ul>
