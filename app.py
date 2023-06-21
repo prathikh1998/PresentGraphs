@@ -112,9 +112,9 @@ def search():
 
 @app.route('/bounding_box_search', methods=['POST'])
 def bounding_box_search():
+    start_time = time.time()  # Start the timer
     min_pop = float(request.form['min_lat'])
     max_pop = float(request.form['min_lon'])
-
 
     conn = pyodbc.connect(connection_string)
     cursor = conn.cursor()
@@ -124,8 +124,9 @@ def bounding_box_search():
     ''', (min_pop, max_pop))
     
     cities_in_box = cursor.fetchall()
+    query_time += time.time() - start_time
     conn.close()
-    return render_template('box_results.html', cities_in_box=cities_in_box)
+    return render_template('box_results.html', cities_in_box=cities_in_box,total_time=query_time)
 
 @app.route('/population_increment', methods=['GET', 'POST'])
 def population_increment():
