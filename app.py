@@ -99,7 +99,7 @@ def search():
     selected_city = cursor.fetchall()
     conn.close()
     return render_template('results.html', selected_city=selected_city)
-    
+
 @app.route('/bounding_box_search', methods=['POST'])
 def bounding_box_search():
     start_time = time.time()  # Start the timer
@@ -126,6 +126,8 @@ def population_increment():
         min_population = int(request.form['min_population'])
         max_population = int(request.form['max_population'])
         increment = int(request.form['increment'])
+
+        start_time = time.time()  # Start the timer
 
         # Retrieve the cities within the specified state and population range from the database
         conn = pyodbc.connect(connection_string)
@@ -158,16 +160,14 @@ def population_increment():
             conn.commit()
             conn.close()
 
-        # Render the population increment results page
-        return render_template('increment_population_results.html', modified_cities=modified_cities)
+        total_time = time.time() - start_time  # Calculate total time
+
+        # Render the population increment results page with modified cities and total time
+        return render_template('increment_population_results.html', modified_cities=modified_cities, total_time=total_time)
 
     # If it's a GET request, render the population increment form
     return render_template('population_increment.html')
 
-
-
-# Add City Route
-# Add City Route
 @app.route('/add', methods=['POST'])
 def add():
     city = request.form['add_city']
