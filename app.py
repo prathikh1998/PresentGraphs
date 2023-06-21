@@ -99,6 +99,7 @@ def search():
     selected_city = cursor.fetchall()
     conn.close()
     return render_template('results.html', selected_city=selected_city)
+    
 @app.route('/bounding_box_search', methods=['POST'])
 def bounding_box_search():
     start_time = time.time()  # Start the timer
