@@ -6,7 +6,7 @@ import pyodbc
 import redis
 
 app = Flask(__name__)
-cache = redis.Redis(host='quizredis.redis.cache.windows.net', port=6379, password='ynkp3itVINJCqSXZDygXgqoo1baX48GwDTAzCaM4ZFX0=', db=0, ssl=False)
+cache = redis.Redis(host='quizredis.redis.cache.windows.net', port=6380, password='ynkp3itVINJCqSXZDygXgqoo1baX48GwDTAzCaM4ZFX0=', ssl=True)
 
 # Connect to your Azure SQL database
 connection_string = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:prathikhegde.database.windows.net,1433;DATABASE=ASSS2;UID=prathikhegde;PWD=Tco7890$"
@@ -17,18 +17,7 @@ cursor = cnxn.cursor()
 def index():
     return render_template('index.html')
 
-def fetch_results_from_cache(query):
-    # Check if the query result is cached
-    if cache.exists(query):
-        # Fetch the cached result
-        result = cache.get(query)
-        return result.decode('utf-8')
 
-    return None
-
-def cache_results(query, result):
-    # Cache the query result
-    cache.set(query, result)
 
 # ...
 
@@ -133,7 +122,19 @@ def restricted_queries():
 
 # ...
 
+def fetch_results_from_cache(query):
+    # Check if the query result is cached
+    if cache.exists(query):
+        # Fetch the cached result
+        result = cache.get(query)
+        return result.decode('utf-8')
 
+    return None
+
+def cache_results(query, result):
+    # Cache the query result
+    cache.set(query, result)
+    
 def generate_random_query():
     table_name = "all_month"
     fields = [
