@@ -17,6 +17,8 @@ def index():
 
 # ...
 
+# ...
+
 @app.route('/random_queries', methods=['POST', 'GET'])
 def random_queries():
     if request.method == 'POST':
@@ -47,12 +49,11 @@ def random_queries():
 
             query_results.append((query, query_time, rows))
 
-        return render_template('results.html', query_results=query_results)
+        total_time = time.time() - start_time  # Calculate the total time
+
+        return render_template('results.html', query_results=query_results, total_time=total_time)  # Pass total_time to the template
     else:
         return render_template('random_queries.html')
-
-# ...
-
 
 # ...
 
@@ -86,12 +87,17 @@ def restricted_queries():
 
             query_results.append((query, query_time, rows))
 
+        total_time = time.time() - start_time  # Calculate the total time
+
         if query_results:
-            return render_template('results.html', query_results=query_results)
+            return render_template('results.html', query_results=query_results, total_time=total_time)  # Pass total_time to the template
         else:
             return render_template('no_results.html')  # Create a new template to display a message when no results are found
     else:
         return render_template('restricted_queries.html')
+
+# ...
+
 
 
 
