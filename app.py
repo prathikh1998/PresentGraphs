@@ -93,8 +93,8 @@ def search():
     cursor = conn.cursor()
     
     cursor.execute('''
-        SELECT * FROM city_cloud WHERE Population >= ? AND Population <= ? ORDER BY RAND() LIMIT ?
-    ''', (min_pop, max_pop,many))
+        SELECT TOP (?) * FROM city_cloud WHERE Population >= ? AND Population <= ? ORDER BY NEWID()
+    ''', (many,min_pop,max_pop))
     
     selected_city = cursor.fetchall()
     conn.close()
