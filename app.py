@@ -7,7 +7,12 @@ import redis
 import json
 
 app = Flask(__name__)
-cache = redis.Redis(host='quizredis.redis.cache.windows.net', port=6380, password='ynkp3itVINJCqSXZDygXgqoo1baX48GwDTAzCaM4ZFX0=', ssl=True)
+cache = redis.Redis(
+    host='quizredis.redis.cache.windows.net',
+    port=6380,
+    password='ynkp3itVINJCqSXZDygXgqoo1baX48GwDTAzCaM4ZFX0=',
+    ssl=True
+)
 
 # Connect to your Azure SQL database
 connection_string = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:prathikhegde.database.windows.net,1433;DATABASE=ASSS2;UID=prathikhegde;PWD=Tco7890$"
