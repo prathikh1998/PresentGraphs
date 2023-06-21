@@ -93,7 +93,7 @@ def search():
     cursor = conn.cursor()
     
     query = '''
-        SELECT TOP {} * FROM city_cloud WHERE Population >= ? AND Population <= ? ORDER BY NEWID()
+        SELECT * FROM city_cloud WHERE Population >= ? AND Population <= ? ORDER BY NEWID()
     '''.format(many)
 
     cursor.execute(query, (min_pop, max_pop))
