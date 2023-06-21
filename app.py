@@ -7,7 +7,6 @@ import redis
 import json
 
 app = Flask(__name__)
-cache = redis.Redis(host='quizredis.redis.cache.windows.net', port=6380, password='ynkp3itVINJCqSXZDygXgqoo1baX48GwDTAzCaM4ZFX0=', ssl=True)
 
 # Connect to your Azure SQL database
 connection_string = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:prathikhegde.database.windows.net,1433;DATABASE=ASSS2;UID=prathikhegde;PWD=Tco7890$"
@@ -17,7 +16,6 @@ cursor = cnxn.cursor()
 @app.route('/')
 def index():
     return render_template('index.html')
-
 
 @app.route('/random_queries', methods=['POST', 'GET'])
 def random_queries():
@@ -32,12 +30,11 @@ def random_queries():
             query = generate_random_query()
 
             # Check if the query result is cached
-            cached_result = fetch_results_from_cache(query)
+            result = fetch_results_from_cache(query)
 
-            if cached_result is not None:
+            if result is not None:
                 # Use the cached result
-                query_time = 0  # Since the result is already cached, query execution time is considered 0
-                rows = cached_result
+                query_time, rows = result
             else:
                 # Execute the query
                 start_time = time.time()  # Start the timer
@@ -58,8 +55,8 @@ def random_queries():
                 query_time = time.time() - start_time
                 total_time += query_time  # Add query time to the total
 
-                # Cache the query results
-                cache_results(query, rows)
+                # Cache the results
+                cache_results(query, (query_time, rows))
 
             query_results.append((query, query_time, rows))
 
@@ -67,59 +64,7 @@ def random_queries():
     else:
         return render_template('random_queries.html')
 
-# ...
-
-@app.route('/restricted_queries', methods=['POST', 'GET'])
-def restricted_queries():
-    if request.method == 'POST':
-        num_queries = int(request.form.get('num_queries'))
-
-        query_results = []
-        start_time = time.time()
-        for _ in range(num_queries):
-            # Generate a random restricted query
-            query = generate_random_restricted_query()
-
-            # Check if the query result is cached
-            cached_result = fetch_results_from_cache(query)
-
-            if cached_result is not None:
-                # Use the cached result
-                query_time = 0  # Since the result is already cached, query execution time is considered 0
-                rows = cached_result
-            else:
-                # Execute the query
-                cursor.execute(query)
-
-                # Fetch the results
-                results = cursor.fetchall()
-
-                # Convert the pyodbc.Row objects to dictionaries
-                rows = []
-                for row in results:
-                    row_dict = {}
-                    for idx, column in enumerate(cursor.description):
-                        row_dict[column[0]] = row[idx]
-                    rows.append(row_dict)
-
-                # Get the execution time
-                query_time = time.time() - start_time
-
-                # Cache the query results
-                cache_results(query, rows)
-
-            query_results.append((query, query_time, rows))
-
-        total_time = time.time() - start_time  # Calculate the total time
-
-        if query_results:
-            return render_template('results.html', query_results=query_results, total_time=total_time)  # Pass total_time to the template
-        else:
-            return render_template('no_results.html')  # Create a new template to display a message when no results are found
-    else:
-        return render_template('restricted_queries.html')
-
-# ...
+# ... (other routes and functions)
 
 def fetch_results_from_cache(query):
     # Check if the query result is cached
@@ -135,7 +80,45 @@ def cache_results(query, result):
     # Convert the result to a JSON string before caching
     cache.set(query, json.dumps(result))
 
-# ...
+@app.route('/restricted_queries', methods=['POST', 'GET'])
+def restricted_queries():
+    if request.method == 'POST':
+        num_queries = int(request.form.get('num_queries'))
+
+        query_results = []
+        start_time = time.time()
+        for _ in range(num_queries):
+            # Generate a random restricted query
+            query = generate_random_restricted_query()
+
+            # Execute the query
+            cursor.execute(query)
+
+            # Fetch the results
+            results = cursor.fetchall()
+
+            # Convert the pyodbc.Row objects to dictionaries
+            rows = []
+            for row in results:
+                row_dict = {}
+                for idx, column in enumerate(cursor.description):
+                    row_dict[column[0]] = row[idx]
+                rows.append(row_dict)
+
+            # Get the execution time
+            query_time = time.time() - start_time
+
+            query_results.append((query, query_time, rows))
+
+        total_time = time.time() - start_time  # Calculate the total time
+
+        if query_results:
+            return render_template('results.html', query_results=query_results, total_time=total_time)  # Pass total_time to the template
+        else:
+            return render_template('no_results.html')  # Create a new template to display a message when no results are found
+    else:
+        return render_template('restricted_queries.html')
+
 def generate_random_query():
     table_name = "all_month"
     fields = [
@@ -184,11 +167,12 @@ def generate_random_restricted_condition():
 
 def generate_random_date():
     # Generate a random date string between 2000-01-01 and 2023-12-31
-    start_date = datetime.datetime(2000, 1, 1)
-    end_date = datetime.datetime(2023, 12, 31)
+    start_date = datetime.datetime(2023, 8, 1)
+    end_date = datetime.datetime(2023, 10, 31)
     random_date = start_date + (end_date - start_date) * random.random()
     return random_date.strftime('%Y-%m-%d')
 
 
 if __name__ == '__main__':
+    app.debug = True
     app.run()
