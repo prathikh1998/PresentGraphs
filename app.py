@@ -161,4 +161,5 @@ def generate_random_date():
 
 
 if __name__ == '__main__':
+    app.debug = True
     app.run()
