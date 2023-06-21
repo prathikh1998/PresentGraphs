@@ -54,6 +54,8 @@ def random_queries():
 # ...
 
 
+# ...
+
 @app.route('/restricted_queries', methods=['POST', 'GET'])
 def restricted_queries():
     if request.method == 'POST':
@@ -71,14 +73,23 @@ def restricted_queries():
             # Fetch the results
             results = cursor.fetchall()
 
+            # Convert the pyodbc.Row objects to dictionaries
+            rows = []
+            for row in results:
+                row_dict = dict(row)
+                rows.append(row_dict)
+
             # Get the execution time
             query_time = time.time() - start_time
 
-            query_results.append((query, query_time, results))
+            query_results.append((query, query_time, rows))
 
         return render_template('results.html', query_results=query_results)
     else:
         return render_template('restricted_queries.html')
+
+# ...
+
 
 # ...
 
