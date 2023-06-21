@@ -31,24 +31,35 @@ def random_queries():
             # Generate a random query
             query = generate_random_query()
 
-            # Execute the query
-            start_time = time.time()  # Start the timer
-            cursor.execute(query)
+            # Check if the query result is cached
+            cached_result = fetch_results_from_cache(query)
 
-            # Fetch the results
-            results = cursor.fetchall()
+            if cached_result is not None:
+                # Use the cached result
+                query_time = 0  # Since the result is already cached, query execution time is considered 0
+                rows = cached_result
+            else:
+                # Execute the query
+                start_time = time.time()  # Start the timer
+                cursor.execute(query)
 
-            # Convert the pyodbc.Row objects to dictionaries
-            rows = []
-            for row in results:
-                row_dict = {}
-                for idx, column in enumerate(cursor.description):
-                    row_dict[column[0]] = row[idx]
-                rows.append(row_dict)
+                # Fetch the results
+                results = cursor.fetchall()
 
-            # Get the execution time
-            query_time = time.time() - start_time
-            total_time += query_time  # Add query time to the total
+                # Convert the pyodbc.Row objects to dictionaries
+                rows = []
+                for row in results:
+                    row_dict = {}
+                    for idx, column in enumerate(cursor.description):
+                        row_dict[column[0]] = row[idx]
+                    rows.append(row_dict)
+
+                # Get the execution time
+                query_time = time.time() - start_time
+                total_time += query_time  # Add query time to the total
+
+                # Cache the query results
+                cache_results(query, rows)
 
             query_results.append((query, query_time, rows))
 
@@ -69,22 +80,33 @@ def restricted_queries():
             # Generate a random restricted query
             query = generate_random_restricted_query()
 
-            # Execute the query
-            cursor.execute(query)
+            # Check if the query result is cached
+            cached_result = fetch_results_from_cache(query)
 
-            # Fetch the results
-            results = cursor.fetchall()
+            if cached_result is not None:
+                # Use the cached result
+                query_time = 0  # Since the result is already cached, query execution time is considered 0
+                rows = cached_result
+            else:
+                # Execute the query
+                cursor.execute(query)
 
-            # Convert the pyodbc.Row objects to dictionaries
-            rows = []
-            for row in results:
-                row_dict = {}
-                for idx, column in enumerate(cursor.description):
-                    row_dict[column[0]] = row[idx]
-                rows.append(row_dict)
+                # Fetch the results
+                results = cursor.fetchall()
 
-            # Get the execution time
-            query_time = time.time() - start_time
+                # Convert the pyodbc.Row objects to dictionaries
+                rows = []
+                for row in results:
+                    row_dict = {}
+                    for idx, column in enumerate(cursor.description):
+                        row_dict[column[0]] = row[idx]
+                    rows.append(row_dict)
+
+                # Get the execution time
+                query_time = time.time() - start_time
+
+                # Cache the query results
+                cache_results(query, rows)
 
             query_results.append((query, query_time, rows))
 
@@ -96,6 +118,8 @@ def restricted_queries():
             return render_template('no_results.html')  # Create a new template to display a message when no results are found
     else:
         return render_template('restricted_queries.html')
+
+# ...
 
 def fetch_results_from_cache(query):
     # Check if the query result is cached
@@ -111,6 +135,7 @@ def cache_results(query, result):
     # Convert the result to a JSON string before caching
     cache.set(query, json.dumps(result))
 
+# ...
 def generate_random_query():
     table_name = "all_month"
     fields = [
