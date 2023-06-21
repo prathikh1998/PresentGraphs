@@ -144,7 +144,7 @@ def generate_random_restricted_condition():
 
 def generate_random_date():
     # Generate a random date string between 2000-01-01 and 2023-12-31
-    start_date = datetime.datetime(2023, 08, 1)
+    start_date = datetime.datetime(2023, 8, 1)
     end_date = datetime.datetime(2023, 10, 31)
     random_date = start_date + (end_date - start_date) * random.random()
     return random_date.strftime('%Y-%m-%d')
