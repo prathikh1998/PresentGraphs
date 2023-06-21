@@ -84,7 +84,7 @@ def upload():
 
 @app.route('/search', methods=['POST'])
 def search():
-    city = request.form['city']
+    population = request.form['city']
     conn = pyodbc.connect(connection_string)
     cursor = conn.cursor()
     cursor.execute('''
@@ -112,19 +112,16 @@ def search():
 
 @app.route('/bounding_box_search', methods=['POST'])
 def bounding_box_search():
-    min_lat = float(request.form['min_lat'])
-    min_lon = float(request.form['min_lon'])
-    max_lat = float(request.form['max_lat'])
-    max_lon = float(request.form['max_lon'])
+    min_pop = float(request.form['min_lat'])
+    max_pop = float(request.form['min_lon'])
 
-    
 
     conn = pyodbc.connect(connection_string)
     cursor = conn.cursor()
     
     cursor.execute('''
-        SELECT * FROM city WHERE lat >= ? AND lat <= ? AND lon >= ? AND lon <= ?
-    ''', (min_lat, max_lat, min_lon, max_lon))
+        SELECT * FROM city_cloud WHERE Population >= ? AND Population <= ?
+    ''', (min_pop, max_pop))
     
     cities_in_box = cursor.fetchall()
     conn.close()
@@ -143,7 +140,7 @@ def population_increment():
         conn = pyodbc.connect(connection_string)
         cursor = conn.cursor()
         cursor.execute('''
-            SELECT * FROM city WHERE State = ? AND Population >= ? AND Population <= ?
+            SELECT * FROM city_cloud WHERE State = ? AND Population >= ? AND Population <= ?
         ''', (state, min_population, max_population))
         cities = cursor.fetchall()
         conn.close()
