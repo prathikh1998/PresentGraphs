@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import csv
 import pyodbc
 import sqlite3
+import time
 from geopy.distance import geodesic
 import logging
 
