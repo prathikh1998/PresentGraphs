@@ -17,18 +17,7 @@ cursor = cnxn.cursor()
 def index():
     return render_template('index.html')
 
-def fetch_results_from_cache(query):
-    # Check if the query result is cached
-    if cache.exists(query):
-        # Fetch the cached result
-        result = cache.get(query)
-        return result.decode('utf-8')
 
-    return None
-
-def cache_results(query, result):
-    # Cache the query result
-    cache.set(query, result)
 
 # ...
 
@@ -127,7 +116,18 @@ def restricted_queries():
         return render_template('restricted_queries.html')
 
 # ...
+def fetch_results_from_cache(query):
+    # Check if the query result is cached
+    if cache.exists(query):
+        # Fetch the cached result
+        result = cache.get(query)
+        return result.decode('utf-8')
 
+    return None
+
+def cache_results(query, result):
+    # Cache the query result
+    cache.set(query, result)
 
 def generate_random_query():
     table_name = "all_month"
