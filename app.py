@@ -66,7 +66,8 @@ def restricted_queries():
         num_queries = int(request.form.get('num_queries'))
 
         query_results = []
-        start_time = time.time()
+        total_time = 0
+
         for _ in range(num_queries):
             # Generate a random restricted query
             query = generate_random_restricted_query()
@@ -87,19 +88,19 @@ def restricted_queries():
 
             # Get the execution time
             query_time = time.time() - start_time
+            total_time += query_time
 
-            query_results.append((query, query_time, rows))
-
-        total_time = time.time() - start_time  # Calculate the total time
+            # Append query results only if results are found
+            if rows:
+                query_results.append((query, query_time, rows))
 
         if query_results:
-            return render_template('results.html', query_results=query_results, total_time=total_time)  # Pass total_time to the template
+            return render_template('results.html', query_results=query_results, num_queries=num_queries, total_time=total_time)
         else:
             return render_template('no_results.html')  # Create a new template to display a message when no results are found
     else:
         return render_template('restricted_queries.html')
 
-# ...
 
 
 
