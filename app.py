@@ -1,189 +1,225 @@
 from flask import Flask, render_template, request
-import random
-import datetime
-import time
+import csv
 import pyodbc
-import redis
-import json
+import sqlite3
+from geopy.distance import geodesic
+import logging
+
 
 app = Flask(__name__)
-cache = redis.Redis(host='quizredis.redis.cache.windows.net', port=6379, password='ynkp3itVINJCqSXZDygXgqoo1baX48GwDTAzCaM4ZFX0=', ssl=False)
 
-# Connect to your Azure SQL database
-connection_string = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:prathikhegde.database.windows.net,1433;DATABASE=ASSS2;UID=prathikhegde;PWD=Tco7890$"
-cnxn = pyodbc.connect(connection_string)
-cursor = cnxn.cursor()
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+
+# Azure SQL Database configuration
+server = 'tcp:prathikhegde.database.windows.net,1433'
+database = 'ASSS2'
+username = 'prathikhegde'
+password = 'Tco7890$'
+driver = '{ODBC Driver 18 for SQL Server}'
+
+connection_string = f"DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}"
+def create_table():
+    conn = pyodbc.connect(connection_string)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS city (
+            City VARCHAR(50) NULL,
+            State VARCHAR(50) NULL,
+            Population INT NULL,
+            lat FLOAT NULL,
+            lon FLOAT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
+@app.route('/upload', methods=['POST'])
+def upload():
+    file = request.files['file']
+    file_path = './STATIC/city.csv'  # Set the correct file path
 
-@app.route('/random_queries', methods=['POST', 'GET'])
-def random_queries():
-    try:
-        if request.method == 'POST':
-            num_queries = int(request.form.get('num_queries'))
+    # Save the file to disk
+    file.save(file_path)
 
-            query_results = []
-            total_time = 0  # Initialize total time
+    if file:
+        create_table()
+        conn = pyodbc.connect(connection_string)
+        cursor = conn.cursor()
+        
+        # Open the file in text mode with the appropriate encoding
+        with open(file_path, 'r', encoding='utf-8') as csv_file:
+            csv_reader = csv.reader(csv_file)
+            next(csv_reader)  # Skip header row
+            
+            for row in csv_reader:
+                # Extract the values from the row
+                City = row[0]
+                State = row[1]
+                Population = int(row[2])
+                lat = float(row[3])
+                lon = float(row[4])  # Updated field name
 
-            for _ in range(num_queries):
-                # Generate a random query
-                query = generate_random_query()
+                # Execute the SQL INSERT statement
+                cursor.execute('''
+                    INSERT INTO city (
+                        City, State, Population, lat, lon
+                    )
+                    VALUES (?, ?, ?, ?, ?)
+                ''', (
+                    City, State, Population, lat, lon
+                ))
 
-                # Check if the result is cached
-                start_time = time.time()  # Start the timer
-                result = fetch_results_from_cache(query)
-                query_time = time.time() - start_time
+        conn.commit()
+        conn.close()
+        return 'Data imported successfully!'
 
-                if result is None:
-                    # Execute the query and fetch the results
-                    start_time = time.time()  # Start the timer
-                    cursor.execute(query)
-                    results = cursor.fetchall()
+    return 'No file selected.'
 
-                    # Convert the pyodbc.Row objects to dictionaries
-                    rows = []
-                    for row in results:
-                        row_dict = {}
-                        for idx, column in enumerate(cursor.description):
-                            row_dict[column[0]] = row[idx]
-                        rows.append(row_dict)
 
-                    # Get the execution time
-                    query_time += time.time() - start_time
-                    total_time += query_time  # Add query time to the total
-
-                    query_results.append((query, query_time, rows))
-
-                    # Cache the results
-                    cache_results(query, rows)
-                else:
-                    # Use the cached results
-                    query_results.append((query, query_time, result))
-
-            return render_template('results.html', query_results=query_results, total_time=total_time)
-        else:
-            return render_template('random_queries.html')
-    except Exception as e:
-        # Log the exception
-        app.logger.exception(e)
-
-@app.route('/restricted_queries', methods=['POST', 'GET'])
-def restricted_queries():
-    if request.method == 'POST':
-        num_queries = int(request.form.get('num_queries'))
-
-        query_results = []
-        total_time = 0  # Initialize total time
-
-        for _ in range(num_queries):
-            # Generate a random restricted query
-            query = generate_random_restricted_query()
-
-            # Check if the result is cached
-            start_time = time.time()  # Start the timer
-            result = fetch_results_from_cache(query)
-            query_time = time.time() - start_time
-
-            if result is None:
-                # Execute the query and fetch the results
-                start_time = time.time()  # Start the timer
-                cursor.execute(query)
-                results = cursor.fetchall()
-
-                # Convert the pyodbc.Row objects to dictionaries
-                rows = []
-                for row in results:
-                    row_dict = {}
-                    for idx, column in enumerate(cursor.description):
-                        row_dict[column[0]] = row[idx]
-                    rows.append(row_dict)
-
-                # Get the execution time
-                query_time += time.time() - start_time
-                total_time += query_time  # Add query time to the total
-
-                query_results.append((query, query_time, rows))
-
-                # Cache the results
-                cache_results(query, rows)
-            else:
-                # Use the cached results
-                query_results.append((query, query_time, result))
-
-        return render_template('results.html', query_results=query_results, total_time=total_time)
+@app.route('/search', methods=['POST'])
+def search():
+    city = request.form['city']
+    conn = pyodbc.connect(connection_string)
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT * FROM city WHERE City LIKE ?
+    ''', (city,))
+    selected_city = cursor.fetchone()
+    
+    if selected_city:
+        selected_lat = selected_city.lat
+        selected_lon = selected_city.lon
+        
+        # Find cities within 100 km of the selected city
+        cursor.execute('''
+            SELECT * FROM city WHERE City != ? AND
+            CAST(geography::Point(lat, lon, 4326).STDistance(geography::Point(?, ?, 4326)) AS FLOAT) <= 100000
+        ''', (city, selected_lat, selected_lon))
+        
+        nearby_cities = cursor.fetchall()
+        conn.close()
+        return render_template('results.html', selected_city=selected_city, nearby_cities=nearby_cities)
     else:
-        return render_template('restricted_queries.html')
+        conn.close()
+        return render_template('results.html', selected_city=None, nearby_cities=None)
 
 
-def fetch_results_from_cache(query):
-    # Check if the query result is cached
-    result = cache.get(query)
+@app.route('/bounding_box_search', methods=['POST'])
+def bounding_box_search():
+    min_lat = float(request.form['min_lat'])
+    min_lon = float(request.form['min_lon'])
+    max_lat = float(request.form['max_lat'])
+    max_lon = float(request.form['max_lon'])
 
-    if result is not None:
-        # Decode the cached result and return it
-        return json.loads(result)
+    
 
-    return None
+    conn = pyodbc.connect(connection_string)
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        SELECT * FROM city WHERE lat >= ? AND lat <= ? AND lon >= ? AND lon <= ?
+    ''', (min_lat, max_lat, min_lon, max_lon))
+    
+    cities_in_box = cursor.fetchall()
+    conn.close()
+    return render_template('box_results.html', cities_in_box=cities_in_box)
 
-def cache_results(query, result):
-    # Convert the result to a JSON string before caching
-    cache.set(query, json.dumps(result))
+@app.route('/population_increment', methods=['GET', 'POST'])
+def population_increment():
+    if request.method == 'POST':
+        # Get the state and population increment values from the form
+        state = request.form['state']
+        min_population = int(request.form['min_population'])
+        max_population = int(request.form['max_population'])
+        increment = int(request.form['increment'])
 
-def generate_random_query():
-    table_name = "all_month"
-    fields = [
-        "time", "latitude", "longitude", "depth", "mag", "magType", "nst", "gap", "dmin", "rms",
-        "net", "id", "updated", "place", "type", "horizontalError", "depthError", "magError",
-        "magNst", "status", "locationSource", "magSource"
-    ]
+        # Retrieve the cities within the specified state and population range from the database
+        conn = pyodbc.connect(connection_string)
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT * FROM city WHERE State = ? AND Population >= ? AND Population <= ?
+        ''', (state, min_population, max_population))
+        cities = cursor.fetchall()
+        conn.close()
 
-    # Generate a random query to fetch a random tuple
-    random_field = random.choice(fields)
-    query = f"SELECT TOP 10 {random_field} from {table_name} ORDER BY NEWID();"
+        # Increment the population of each city within the specified range
+        modified_cities = []
+        for city in cities:
+            modified_population = city.Population + increment
+            modified_cities.append({
+                'City': city.City,
+                'State': city.State,
+                'OriginalPopulation': city.Population,
+                'NewPopulation': modified_population,
+                'Latitude': city.lat,
+                'Longitude': city.lon
+            })
 
-    return query
+            # Update the population of the city in the database
+            conn = pyodbc.connect(connection_string)
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE city SET Population = ? WHERE City = ? AND State = ?
+            ''', (modified_population, city.City, city.State))
+            conn.commit()
+            conn.close()
 
+        # Render the population increment results page
+        return render_template('increment_population_results.html', modified_cities=modified_cities)
 
-def generate_random_restricted_query():
-    table_name = "all_month"
-    fields = [
-        "time", "latitude", "longitude", "depth", "mag", "magType", "nst", "gap", "dmin", "rms",
-        "net", "id", "updated", "place", "type", "horizontalError", "depthError", "magError",
-        "magNst", "status", "locationSource", "magSource"
-    ]
-
-    # Generate a random restricted condition
-    condition = generate_random_restricted_condition()
-
-    # Generate a random query with the condition
-    random_field = random.choice(fields)
-    query = f"SELECT TOP 10 {random_field} FROM {table_name} WHERE {condition} ORDER BY NEWID();"
-
-    return query
-
-
-def generate_random_restricted_condition():
-    conditions = [
-        "place LIKE '%California%'",
-        f"time BETWEEN '{generate_random_date()}' AND '{generate_random_date()}'",
-        f"mag BETWEEN {random.uniform(0, 10)} AND {random.uniform(0, 10)}"
-    ]
-
-    # Generate a random restricted condition
-    condition = random.choice(conditions)
-
-    return condition
+    # If it's a GET request, render the population increment form
+    return render_template('population_increment.html')
 
 
-def generate_random_date():
-    # Generate a random date string between 2000-01-01 and 2023-12-31
-    start_date = datetime.datetime(2000, 1, 1)
-    end_date = datetime.datetime(2023, 12, 31)
-    random_date = start_date + (end_date - start_date) * random.random()
-    return random_date.strftime('%Y-%m-%d')
+
+# Add City Route
+# Add City Route
+@app.route('/add', methods=['POST'])
+def add():
+    city = request.form['add_city']
+    state = request.form['add_state']
+    population = int(request.form['add_population'])
+    lat = float(request.form['add_lat'])
+    lon = float(request.form['add_lon'])
+
+    logging.info(f"City: {city}")
+    logging.info(f"State: {state}")
+    logging.info(f"Population: {population}")
+    logging.info(f"Latitude: {lat}")
+    logging.info(f"Longitude: {lon}")
+    
+    conn = pyodbc.connect(connection_string)
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO city (City, State, Population, lat, lon)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (city, state, population, lat, lon))
+    conn.commit()
+    conn.close()
+    
+    return 'City added successfully!'
+
+
+@app.route('/remove', methods=['POST'])
+def remove():
+    city = request.form['remove_city']  # Corrected name
+    state = request.form['remove_state']  # Corrected name
+    
+    conn = pyodbc.connect(connection_string)
+    cursor = conn.cursor()
+    cursor.execute('''
+        DELETE FROM city WHERE City = ? AND State = ?
+    ''', (city, state))
+    conn.commit()
+    conn.close()
+    
+    return 'City removed successfully!'
 
 
 if __name__ == '__main__':
