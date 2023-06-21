@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request
 import csv
+import time
 import pyodbc
 import sqlite3
-import time
 from geopy.distance import geodesic
 import logging
 
@@ -85,32 +85,20 @@ def upload():
 
 @app.route('/search', methods=['POST'])
 def search():
-    population = request.form['city']
+    min_pop = float(request.form['min_lat'])
+    max_pop = float(request.form['min_lon'])
+    many = int(request.form['many'])
+
     conn = pyodbc.connect(connection_string)
     cursor = conn.cursor()
-    cursor.execute('''
-        SELECT * FROM city WHERE City LIKE ?
-    ''', (city,))
-    selected_city = cursor.fetchone()
     
-    if selected_city:
-        selected_lat = selected_city.lat
-        selected_lon = selected_city.lon
-        
-        # Find cities within 100 km of the selected city
-        cursor.execute('''
-            SELECT * FROM city WHERE City != ? AND
-            CAST(geography::Point(lat, lon, 4326).STDistance(geography::Point(?, ?, 4326)) AS FLOAT) <= 100000
-        ''', (city, selected_lat, selected_lon))
-        
-        nearby_cities = cursor.fetchall()
-        conn.close()
-        return render_template('results.html', selected_city=selected_city, nearby_cities=nearby_cities)
-    else:
-        conn.close()
-        return render_template('results.html', selected_city=None, nearby_cities=None)
-
-
+    cursor.execute('''
+        SELECT * FROM city_cloud WHERE Population >= ? AND Population <= ? ORDER BY RAND() LIMIT ?
+    ''', (min_pop, max_pop,many))
+    
+    selected_city = cursor.fetchall()
+    conn.close()
+    return render_template('results.html', selected_city=selected_city)
 @app.route('/bounding_box_search', methods=['POST'])
 def bounding_box_search():
     start_time = time.time()  # Start the timer
@@ -125,7 +113,7 @@ def bounding_box_search():
     ''', (min_pop, max_pop))
     
     cities_in_box = cursor.fetchall()
-    query_time += time.time() - start_time
+    query_time = time.time() - start_time
     conn.close()
     return render_template('box_results.html', cities_in_box=cities_in_box,total_time=query_time)
 
