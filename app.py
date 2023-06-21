@@ -76,8 +76,12 @@ def restricted_queries():
             # Convert the pyodbc.Row objects to dictionaries
             rows = []
             for row in results:
-                row_dict = dict(row)
+                row_dict = {}
+                for idx, column in enumerate(cursor.description):
+                    row_dict[column[0]] = row[idx]
                 rows.append(row_dict)
+
+            
 
             # Get the execution time
             query_time = time.time() - start_time
