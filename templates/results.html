@@ -1,51 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Results</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        th,
-        td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        .query-time {
-            font-weight: bold;
-        }
-    </style>
+    <title>City Search Results</title>
 </head>
 <body>
-    <h1>Query Results</h1>
-    <p>Total number of queries executed: {{ num_queries }}</p>
-    <p>Total execution time: {{ total_time }} seconds</p>
-
-    {% for query, query_time, results in query_results %}
-        <h2>Query: {{ query }}</h2>
-        <table>
-            <tr>
-                {% for field in results[0].keys() %}
-                    <th>{{ field }}</th>
-                {% endfor %}
-            </tr>
-            {% for row in results %}
-                <tr>
-                    {% for field in row.values() %}
-                        <td>{{ field }}</td>
-                    {% endfor %}
-                </tr>
+    <h1>City Search Results</h1>
+    {% if selected_city %}
+        <h2>Selected City</h2>
+        <ul>
+            <li><strong>City:</strong> {{ selected_city.City }}</li>
+            <li><strong>State:</strong> {{ selected_city.State }}</li>
+            <li><strong>Population:</strong> {{ selected_city.Population }}</li>
+            <li><strong>Latitude:</strong> {{ selected_city.lat }}</li>
+            <li><strong>Longitude:</strong> {{ selected_city.lon }}</li>
+        </ul>
+        
+        {% if nearby_cities %}
+            <h2>Nearby Cities</h2>
+            <ul>
+            {% for city in nearby_cities %}
+                <li>
+                    <strong>City:</strong> {{ city.City }},
+                    <strong>State:</strong> {{ city.State }},
+                    <strong>Population:</strong> {{ city.Population }},
+                    <strong>Latitude:</strong> {{ city.lat }},
+                    <strong>Longitude:</strong> {{ city.lon }}
+                </li>
             {% endfor %}
-        </table>
-        <p>Time Taken: {{ query_time }} seconds</p>
-    {% endfor %}
+            </ul>
+        {% else %}
+            <p>No nearby cities found.</p>
+        {% endif %}
+    {% else %}
+        <p>No city found.</p>
+    {% endif %}
 </body>
 </html>
