@@ -19,18 +19,22 @@ def index():
 
 # ...
 
+# ...
+
 @app.route('/random_queries', methods=['POST', 'GET'])
 def random_queries():
     if request.method == 'POST':
         num_queries = int(request.form.get('num_queries'))
 
         query_results = []
-        start_time = time.time()
+        total_time = 0  # Initialize total time
+
         for _ in range(num_queries):
             # Generate a random query
             query = generate_random_query()
 
             # Execute the query
+            start_time = time.time()  # Start the timer
             cursor.execute(query)
 
             # Fetch the results
@@ -46,12 +50,11 @@ def random_queries():
 
             # Get the execution time
             query_time = time.time() - start_time
+            total_time += query_time  # Add query time to the total
 
             query_results.append((query, query_time, rows))
 
-        total_time = time.time() - start_time  # Calculate the total time
-
-        return render_template('results.html', query_results=query_results, total_time=total_time)  # Pass total_time to the template
+        return render_template('results.html', query_results=query_results, total_time=total_time)
     else:
         return render_template('random_queries.html')
 
