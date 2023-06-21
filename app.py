@@ -81,21 +81,17 @@ def restricted_queries():
                     row_dict[column[0]] = row[idx]
                 rows.append(row_dict)
 
-            
-
             # Get the execution time
             query_time = time.time() - start_time
 
             query_results.append((query, query_time, rows))
 
-        return render_template('results.html', query_results=query_results)
+        if query_results:
+            return render_template('results.html', query_results=query_results)
+        else:
+            return render_template('no_results.html')  # Create a new template to display a message when no results are found
     else:
         return render_template('restricted_queries.html')
-
-# ...
-
-
-# ...
 
 
 
@@ -134,7 +130,7 @@ def generate_random_restricted_query():
 
 def generate_random_restricted_condition():
     conditions = [
-        "place LIKE '%CA%'",
+        "place LIKE '%California%'",
         f"time BETWEEN '{generate_random_date()}' AND '{generate_random_date()}'",
         f"mag BETWEEN {random.uniform(0, 10)} AND {random.uniform(0, 10)}"
     ]
@@ -147,8 +143,8 @@ def generate_random_restricted_condition():
 
 def generate_random_date():
     # Generate a random date string between 2000-01-01 and 2023-12-31
-    start_date = datetime.datetime(2000, 1, 1)
-    end_date = datetime.datetime(2023, 12, 31)
+    start_date = datetime.datetime(2023, 08, 1)
+    end_date = datetime.datetime(2023, 10, 31)
     random_date = start_date + (end_date - start_date) * random.random()
     return random_date.strftime('%Y-%m-%d')
 
