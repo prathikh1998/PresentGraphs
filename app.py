@@ -65,7 +65,7 @@ def restricted_queries():
         start_time = time.time()
         for _ in range(num_queries):
             # Generate a random query
-            query = generate_restricted_query()
+            query = generate_random_restricted_query()
 
             # Execute the query
             cursor.execute(query)
