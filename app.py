@@ -95,6 +95,7 @@ def restricted_queries():
 
 
 
+
 def generate_random_query():
     table_name = "all_month"
     fields = [
