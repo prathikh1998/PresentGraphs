@@ -27,7 +27,7 @@
 <body>
     <h1>Query Results</h1>
     <p>Total number of queries executed: {{ num_queries }}</p>
-    <p>Execution time: {{ total_time }} seconds</p>  <!-- Display total execution time -->
+    <p>Total execution time: {{ total_time }} seconds</p>
 
     {% for query, query_time, results in query_results %}
         <h2>Query: {{ query }}</h2>
