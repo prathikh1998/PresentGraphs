@@ -12,7 +12,7 @@ driver = '{ODBC Driver 17 for SQL Server}'
 connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}'
 
 
-@app.route('/chart', methods=['GET'])
+@app.route('/', methods=['GET'])
 def chart():
     return render_template('chart.html')
 
