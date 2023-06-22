@@ -20,8 +20,7 @@ def display_chart():
     cursor = conn.cursor()
 
     # Execute the SQL query
-    cursor.execute("SELECT magnitude_range, quake_count FROM (SELECT CASE WHEN mag < 1 THEN 'Magnitude < 1' WHEN mag >= 1 AND mag < 2 THEN 'Magnitude 1-2' WHEN mag >= 2 AND mag < 3 THEN 'Magnitude 2-3' WHEN mag >= 3 AND mag < 4 THEN 'Magnitude 3-4' WHEN mag >= 4 AND mag <= 5 THEN 'Magnitude 4-5' ELSE 'Magnitude > 5' END AS magnitude_range, COUNT(*) AS quake_count FROM all_month GROUP BY mag) AS subquery ORDER BY magnitude_range")
-
+    cursor.execute("SELECT magnitude_range, SUM(quake_count) FROM (SELECT CASE WHEN mag < 1 THEN 'Magnitude < 1' WHEN mag >= 1 AND mag < 2 THEN 'Magnitude 1-2' WHEN mag >= 2 AND mag < 3 THEN 'Magnitude 2-3' WHEN mag >= 3 AND mag < 4 THEN 'Magnitude 3-4' WHEN mag >= 4 AND mag <= 5 THEN 'Magnitude 4-5' ELSE 'Magnitude > 5' END AS magnitude_range, COUNT(*) AS quake_count FROM all_month GROUP BY CASE WHEN mag < 1 THEN 'Magnitude < 1' WHEN mag >= 1 AND mag < 2 THEN 'Magnitude 1-2' WHEN mag >= 2 AND mag < 3 THEN 'Magnitude 2-3' WHEN mag >= 3 AND mag < 4 THEN 'Magnitude 3-4' WHEN mag >= 4 AND mag <= 5 THEN 'Magnitude 4-5' ELSE 'Magnitude > 5' END) AS subquery GROUP BY magnitude_range ORDER BY magnitude_range")
     # Fetch all the rows
     rows = cursor.fetchall()
 
