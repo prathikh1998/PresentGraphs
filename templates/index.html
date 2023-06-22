@@ -5,6 +5,14 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <form method="POST" action="/query">
+        <label><input type="checkbox" name="condition" value="1-2">Magnitude 1-2</label>
+        <label><input type="checkbox" name="condition" value="2-3">Magnitude 2-3</label>
+        <label><input type="checkbox" name="condition" value="3-4">Magnitude 3-4</label>
+        <label><input type="checkbox" name="condition" value="4-5">Magnitude 4-5</label>
+        <button type="submit">Submit</button>
+    </form>
+
     <canvas id="myChart"></canvas>
     <script>
         // Retrieve the data passed from the Flask application
