@@ -1,71 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Query and Bar Chart</title>
-  <!-- Include necessary CSS and JS libraries -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"></script>
+    <title>Chart Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <h1>Query and Bar Chart</h1>
-  <form id="queryForm">
-    <label for="queryInput">Enter your query:</label>
-    <input type="text" id="queryInput" name="queryInput">
-    <button type="submit">Submit</button>
-  </form>
-  <div id="chartContainer">
-    <canvas id="barChart"></canvas>
-  </div>
+    <canvas id="myChart"></canvas>
+    <script>
+        // Retrieve the data passed from the Flask application
+        var data = {{ data|safe }};
 
-  <script>
-    document.getElementById("queryForm").addEventListener("submit", function(event) {
-      event.preventDefault();
-      var query = document.getElementById("queryInput").value;
-      fetchData(query);
-    });
+        // Extract the magnitude range labels and quake counts from the data
+        var labels = data.map(function(item) {
+            return item.magnitude_range;
+        });
 
-    function fetchData(query) {
-      // Make an AJAX request to the Flask backend
-      var xhr = new XMLHttpRequest();
-      xhr.open("GET", "/get-results?query=" + encodeURIComponent(query));
-      xhr.onload = function() {
-        if (xhr.status === 200) {
-          var results = JSON.parse(xhr.responseText);
-          displayChart(results);
-        }
-      };
-      xhr.send();
-    }
+        var counts = data.map(function(item) {
+            return item.quake_count;
+        });
 
-    function displayChart(results) {
-      var labels = results.labels;
-      var data = results.data;
-
-      var ctx = document.getElementById("barChart").getContext("2d");
-      new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: "Results",
-              data: data,
-              backgroundColor: "rgba(75, 192, 192, 0.2)",
-              borderColor: "rgba(75, 192, 192, 1)",
-              borderWidth: 1
+        // Create a new bar chart using Chart.js
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Quake Count',
+                    data: counts,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Quake Count'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Magnitude Range'
+                        }
+                    }
+                }
             }
-          ]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          }
-        }
-      });
-    }
-  </script>
+        });
+    </script>
 </body>
 </html>
