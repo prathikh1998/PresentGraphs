@@ -54,7 +54,7 @@ def execute_query():
         return f"An error occurred: {str(e)}"
 
     # Render the results template with the query results
-    return render_template('index.html', results=results)
+    return render_template('index.html', data=query)
 
 if __name__ == '__main__':
     app.run(debug=True)
