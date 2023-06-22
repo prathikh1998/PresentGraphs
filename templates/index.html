@@ -1,23 +1,21 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>Chart Example</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
     <canvas id="myChart"></canvas>
     <script>
         // Retrieve the data passed from the Flask application
-        var results = {{ results | tojson | safe }};
+        var data = {{ data|safe }};
 
-        // Extract the magnitude range labels and quake counts from the results
-        var labels = results.map(function (item) {
+        // Extract the magnitude range labels and quake counts from the data
+        var labels = data.map(function(item) {
             return item.magnitude_range;
         });
 
-        var counts = results.map(function (item) {
+        var counts = data.map(function(item) {
             return item.quake_count;
         });
 
@@ -56,5 +54,4 @@
         });
     </script>
 </body>
-
 </html>
