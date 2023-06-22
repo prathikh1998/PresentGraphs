@@ -59,7 +59,7 @@ def display_chart():
     data = json.dumps(results)
 
     # Render the HTML template with the chart data
-    return render_template('chart.html', data=data)
+    return render_template('index.html', data=data)
 
 if __name__ == '__main__':
     app.run()
