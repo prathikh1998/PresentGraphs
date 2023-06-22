@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chart Input</title>
+</head>
+<body>
+    <h1>Chart Input</h1>
+    <form action="/generate-chart" method="POST">
+        <!-- Input fields for chart data -->
+        <label for="data">Data:</label>
+        <input type="text" id="data" name="data">
+        <br>
+        <label for="type">Type:</label>
+        <select id="type" name="type">
+            <option value="bar">Bar Chart</option>
+            <option value="line">Line Chart</option>
+            <option value="pie">Pie Chart</option>
+        </select>
+        <br>
+        <button type="submit">Generate Chart</button>
+    </form>
+</body>
+</html>
