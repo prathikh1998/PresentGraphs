@@ -10,6 +10,7 @@ database = 'ASSS2'
 username = 'prathikhegde'
 password = 'Tco7890$'
 driver = '{ODBC Driver 17 for SQL Server}'
+connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}'
 
 # Route for displaying the chart in HTML
 @app.route('/')
