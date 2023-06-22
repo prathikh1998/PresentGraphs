@@ -1,124 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>City Search</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        
-        h1, h2 {
-            color: #333;
-        }
-        
-        form {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: inline-block;
-            width: 120px;
-            margin-bottom: 10px;
-        }
-        
-        input[type="text"],
-        input[type="number"] {
-            padding: 5px;
-            width: 200px;
-        }
-        
-        button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        
-        button:hover {
-            background-color: #45a049;
-        }
-        
-        hr {
-            margin-top: 40px;
-            margin-bottom: 40px;
-            border: 0;
-            border-top: 1px solid #ddd;
-        }
-        
-        a {
-            color: #4CAF50;
-            text-decoration: none;
-        }
-        
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+  <title>Query and Bar Chart</title>
+  <!-- Include necessary CSS and JS libraries -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"></script>
 </head>
 <body>
-    <h1>City Search</h1>
-    <h1>PRATHIK HEGDE - 1002084424</h1>
-    <h1>Bounding Box Population Search with N</h1>
-    <form action="/search" method="POST">
-        <label for="min_lat">Minimum Population:</label>
-        <input type="text" name="min_lat" id="min_lat" required>
-        <label for="min_lon">Maximum Population:</label>
-        <input type="text" name="min_lon" id="min_lon" required>
-        <label for="many">Enter N</label>
-        <input type="number" name="many" id="many" required>
-        <br>
-        <button type="submit">Search</button>
-    </form>
-    
-    <hr>
-    
-    <h2>Bounding Box Population Search</h2>
-    <form action="/bounding_box_search" method="POST">
-        <label for="min_lat">Minimum Population:</label>
-        <input type="text" name="min_lat" id="min_lat" required>
-        <label for="min_lon">Maximum Population:</label>
-        <input type="text" name="min_lon" id="min_lon" required>
-        <br>
-        <button type="submit">Search</button>
-    </form>
-    
-    <hr>
-    
-    <h2>Add City</h2>
-    <form action="/add" method="POST">
-        <label for="add_city">City:</label>
-        <input type="text" name="add_city" id="add_city" required>
-        <label for="add_state">State:</label>
-        <input type="text" name="add_state" id="add_state" required>
-        <br>
-        <label for="add_population">Population:</label>
-        <input type="number" name="add_population" id="add_population" required>
-        <label for="add_lat">Latitude:</label>
-        <input type="number" name="add_lat" id="add_lat" step="any" required>
-        <br>
-        <label for="add_lon">Longitude:</label>
-        <input type="number" name="add_lon" id="add_lon" step="any" required>
-        <br>
-        <button type="submit">Add City</button>
-    </form>
-    
-    <hr>
-    
-    <h2>Remove City</h2>
-    <form action="/remove" method="POST">
-        <label for="remove_city">City:</label>
-        <input type="text" name="remove_city" id="remove_city" required>
-        <label for="remove_state">State:</label>
-        <input type="text" name="remove_state" id="remove_state" required>
-        <br>
-        <button type="submit">Remove City</button>
-    </form>
+  <h1>Query and Bar Chart</h1>
+  <form id="queryForm">
+    <label for="queryInput">Enter your query:</label>
+    <input type="text" id="queryInput" name="queryInput">
+    <button type="submit">Submit</button>
+  </form>
+  <div id="chartContainer">
+    <canvas id="barChart"></canvas>
+  </div>
 
-    <h2>Increment Population</h2>
-    <a href="/population_increment">Increment Population</a>  <!-- Add this line -->
+  <script>
+    document.getElementById("queryForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      var query = document.getElementById("queryInput").value;
+      fetchData(query);
+    });
 
-    
+    function fetchData(query) {
+      // Make an AJAX request to the Flask backend
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "/get-results?query=" + encodeURIComponent(query));
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          var results = JSON.parse(xhr.responseText);
+          displayChart(results);
+        }
+      };
+      xhr.send();
+    }
+
+    function displayChart(results) {
+      var labels = results.labels;
+      var data = results.data;
+
+      var ctx = document.getElementById("barChart").getContext("2d");
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "Results",
+              data: data,
+              backgroundColor: "rgba(75, 192, 192, 0.2)",
+              borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+  </script>
 </body>
 </html>
