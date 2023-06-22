@@ -20,8 +20,8 @@ def display_chart():
     cursor = conn.cursor()
 
     # Execute the SQL query
-    cursor.execute("SELECT magnitude_range, SUM(quake_count) FROM (SELECT CASE WHEN mag < 1 THEN '1. Magnitude < 1' WHEN mag >= 1 AND mag < 2 THEN '2. Magnitude 1-2' WHEN mag >= 2 AND mag < 3 THEN '3. Magnitude 2-3' WHEN mag >= 3 AND mag < 4 THEN '4. Magnitude 3-4' WHEN mag >= 4 AND mag <= 5 THEN '5. Magnitude 4-5' ELSE '6. Magnitude > 5' END AS magnitude_range, COUNT(*) AS quake_count FROM all_month GROUP BY CASE WHEN mag < 1 THEN '1. Magnitude < 1' WHEN mag >= 1 AND mag < 2 THEN '2. Magnitude 1-2' WHEN mag >= 2 AND mag < 3 THEN '3. Magnitude 2-3' WHEN mag >= 3 AND mag < 4 THEN '4. Magnitude 3-4' WHEN mag >= 4 AND mag <= 5 THEN '5. Magnitude 4-5' ELSE '6. Magnitude > 5' END) AS subquery GROUP BY magnitude_range ORDER BY CAST(SUBSTRING(magnitude_range, 1, 1) AS INTEGER)")
-    
+    cursor.execute("SELECT population_range, COUNT(*) AS city_count FROM (SELECT CASE WHEN population >= 50000 AND population <= 100000 THEN 'Population 50000-100000' WHEN population > 100000 AND population <= 150000 THEN 'Population 100001-150000' WHEN population > 150000 AND population <= 200000 THEN 'Population 150001-200000' WHEN population > 200000 AND population <= 250000 THEN 'Population 200001-250000' ELSE 'Population > 250000' END AS population_range FROM `city-1`) AS subquery GROUP BY population_range ORDER BY CASE population_range WHEN 'Population 50000-100000' THEN 1 WHEN 'Population 100001-150000' THEN 2 WHEN 'Population 150001-200000' THEN 3 WHEN 'Population 200001-250000' THEN 4 ELSE 5 END;
+")
     # Fetch all the rows
     rows = cursor.fetchall()
 
