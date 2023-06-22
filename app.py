@@ -12,34 +12,48 @@ password = 'Tco7890$'
 driver = '{ODBC Driver 17 for SQL Server}'
 connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}'
 
-# Route for displaying the chart in HTML
 @app.route('/')
-def display_chart():
-    # Connect to the database
-    conn = pyodbc.connect(connection_string)
-    cursor = conn.cursor()
+def index():
+    return render_template('index.html')
 
-    # Execute the SQL query
-    cursor.execute("SELECT magnitude_range, SUM(quake_count) FROM (SELECT CASE WHEN mag < 1 THEN '1. Magnitude < 1' WHEN mag >= 1 AND mag < 2 THEN '2. Magnitude 1-2' WHEN mag >= 2 AND mag < 3 THEN '3. Magnitude 2-3' WHEN mag >= 3 AND mag < 4 THEN '4. Magnitude 3-4' WHEN mag >= 4 AND mag <= 5 THEN '5. Magnitude 4-5' ELSE '6. Magnitude > 5' END AS magnitude_range, COUNT(*) AS quake_count FROM all_month GROUP BY CASE WHEN mag < 1 THEN '1. Magnitude < 1' WHEN mag >= 1 AND mag < 2 THEN '2. Magnitude 1-2' WHEN mag >= 2 AND mag < 3 THEN '3. Magnitude 2-3' WHEN mag >= 3 AND mag < 4 THEN '4. Magnitude 3-4' WHEN mag >= 4 AND mag <= 5 THEN '5. Magnitude 4-5' ELSE '6. Magnitude > 5' END) AS subquery GROUP BY magnitude_range ORDER BY CAST(SUBSTRING(magnitude_range, 1, 1) AS INTEGER)")
-    
-    # Fetch all the rows
-    rows = cursor.fetchall()
+@app.route('/query', methods=['POST'])
+def execute_query():
+    # Get the selected conditions from the form
+    selected_conditions = request.form.getlist('condition')
 
-    # Convert rows to a list of dictionaries
-    results = []
-    for row in rows:
-        result = {'magnitude_range': row[0], 'quake_count': row[1]}
-        results.append(result)
+    # Prepare the query based on the selected conditions
+    query = "SELECT magnitude_range, quake_count FROM (SELECT CASE "
 
-    # Close the database connection
-    cursor.close()
-    conn.close()
+    for condition in selected_conditions:
+        if condition == '1-2':
+            query += "WHEN mag >= 1 AND mag < 2 THEN 'Magnitude 1-2' "
+        elif condition == '2-3':
+            query += "WHEN mag >= 2 AND mag < 3 THEN 'Magnitude 2-3' "
+        elif condition == '3-4':
+            query += "WHEN mag >= 3 AND mag < 4 THEN 'Magnitude 3-4' "
+        elif condition == '4-5':
+            query += "WHEN mag >= 4 AND mag <= 5 THEN 'Magnitude 4-5' "
 
-    # Convert the results to JSON serializable format
-    data = json.dumps(results)
+    query += "ELSE 'Magnitude > 5' END AS magnitude_range, COUNT(*) AS quake_count FROM all_month "
 
-    # Render the template with the data
-    return render_template('index.html', data=data)
+    if selected_conditions:
+        query += "WHERE " + " OR ".join(["(mag >= {} AND mag < {})".format(c.split('-')[0], c.split('-')[1]) for c in selected_conditions])
+
+    query += " GROUP BY mag) AS subquery ORDER BY magnitude_range"
+
+    # Execute the query and retrieve the results
+    try:
+        conn = pyodbc.connect(connection_string)
+        cursor = conn.cursor()
+        cursor.execute(query)
+        results = cursor.fetchall()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
+
+    # Render the results template with the query results
+    return render_template('results.html', results=results)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
