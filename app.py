@@ -11,9 +11,23 @@ password = 'Tco7890$'
 driver = '{ODBC Driver 17 for SQL Server}'
 connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}'
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+
+@app.route('/chart', methods=['GET'])
+def chart():
+    return render_template('chart.html')
+
+@app.route('/generate-chart', methods=['POST'])
+def generate_chart():
+    # Retrieve the form data and generate the chart
+    data = request.form.get('data')
+    chart_type = request.form.get('type')
+
+    # Process the data and generate the chart using a suitable library (e.g., Matplotlib, Plotly, etc.)
+
+    # Pass the chart data to index.html for display
+    chart_data = ...  # Processed chart data
+
+    return render_template('index.html', chart_data=chart_data)
 
 @app.route('/query', methods=['POST'])
 def execute_query():
