@@ -4,12 +4,12 @@ import pyodbc
 app = Flask(__name__)
 
 # Azure SQL Database connection settings
-server = 'your_server_name'
-database = 'your_database_name'
-username = 'your_username'
-password = 'your_password'
+server = 'prathikhegde.database.windows.net'
+database = 'ASSS2'
+username = 'prathikhegde'
+password = 'Tco7890$'
 driver = '{ODBC Driver 17 for SQL Server}'
-connection_string = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}'
+connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}'
 
 @app.route('/')
 def index():
@@ -40,16 +40,15 @@ def execute_query():
 
     query += " GROUP BY mag) AS subquery ORDER BY magnitude_range"
 
-    # Execute the query and retrieve the results
     try:
-        conn = pyodbc.connect(connection_string)
-        cursor = conn.cursor()
-        cursor.execute(query)
-        results = cursor.fetchall()
-        cursor.close()
-        conn.close()
-    except Exception as e:
+        # Execute the query and retrieve the results
+        with pyodbc.connect(connection_string) as conn:
+            cursor = conn.cursor()
+            cursor.execute(query)
+            results = cursor.fetchall()
+    except pyodbc.Error as e:
         return f"An error occurred: {str(e)}"
+        results = []
 
     # Render the results template with the query results
     return render_template('index.html', data=query, results=results)
