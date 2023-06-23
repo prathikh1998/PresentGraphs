@@ -64,7 +64,7 @@ def generate_chart():
     cursor.close()
     conn.close()
 
-     data = json.dumps(results)
+    data = json.dumps(results)
 
     # Return the chart data as JSON
     return render_template('index.html', data=data)
