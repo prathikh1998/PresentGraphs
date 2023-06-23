@@ -18,7 +18,6 @@ def chart_config():
     return render_template('chart.html')
 
 # Route for generating the chart based on user input
-# Route for generating the chart based on user input
 @app.route('/generate_chart', methods=['POST'])
 def generate_chart():
     attribute = request.form.get('attribute')
@@ -30,16 +29,11 @@ def generate_chart():
     sql_query = f"""
         SELECT {attribute}_range, COUNT(*) AS count
         FROM (
-            SELECT CASE
-                WHEN {condition} THEN '{interval}'
-            END AS {attribute}_range
+            SELECT '{interval}' AS {attribute}_range
             FROM [city-1]
+            WHERE {condition}
         ) AS subquery
         GROUP BY {attribute}_range
-        ORDER BY
-            CASE {attribute}_range
-                WHEN '{interval}' THEN 1
-            END
     """
 
     # Connect to the database
