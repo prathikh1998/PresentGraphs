@@ -32,7 +32,6 @@ def generate_chart():
         FROM (
             SELECT CASE
                 WHEN {condition} THEN '{interval}'
-                ELSE 'Other'
             END AS {attribute}_range
             FROM [city-1]
         ) AS subquery
@@ -40,7 +39,6 @@ def generate_chart():
         ORDER BY
             CASE {attribute}_range
                 WHEN '{interval}' THEN 1
-                ELSE 99
             END
     """
 
