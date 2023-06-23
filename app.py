@@ -28,8 +28,7 @@ def generate_chart():
     cursor = conn.cursor()
 
     # Execute the SQL query
-    sql_query = f"SELECT Population, COUNT(*) AS city_count FROM (SELECT CASE WHEN population >= 50000 AND population <= 100000 THEN 'Population 50000-100000' WHEN population > 100000 AND population <= 150000 THEN 'Population 100001-150000' WHEN population > 150000 AND population <= 200000 THEN 'Population 150001-200000' WHEN population > 200000 AND population <= 250000 THEN 'Population 200001-250000' ELSE 'Population > 250000' END AS population_range FROM [city-1]) AS subquery GROUP BY population_range ORDER BY CASE population_range WHEN 'Population 50000-100000' THEN 1 WHEN 'Population 100001-150000' THEN 2 WHEN 'Population 150001-200000' THEN 3 WHEN 'Population 200001-250000' THEN 4 ELSE 5 END"
-    cursor.execute(sql_query)
+    cursor.execute("SELECT population_range, COUNT(*) AS city_count FROM (SELECT CASE WHEN population >= 50000 AND population <= 100000 THEN 'Population 50000-100000' WHEN population > 100000 AND population <= 150000 THEN 'Population 100001-150000' WHEN population > 150000 AND population <= 200000 THEN 'Population 150001-200000' WHEN population > 200000 AND population <= 250000 THEN 'Population 200001-250000' ELSE 'Population > 250000' END AS population_range FROM [city-1]) AS subquery GROUP BY population_range ORDER BY CASE population_range WHEN 'Population 50000-100000' THEN 1 WHEN 'Population 100001-150000' THEN 2 WHEN 'Population 150001-200000' THEN 3 WHEN 'Population 200001-250000' THEN 4 ELSE 5 END")
 
     # Fetch all the rows
     rows = cursor.fetchall()
