@@ -18,6 +18,7 @@ def chart_config():
     return render_template('chart.html')
 
 # Route for generating the chart based on user input
+# Route for generating the chart based on user input
 @app.route('/generate_chart', methods=['POST'])
 def generate_chart():
     attribute = request.form.get('attribute')
@@ -25,6 +26,9 @@ def generate_chart():
 
     min_val, max_val = interval.split('-')
     condition = f"{attribute} >= {min_val} AND {attribute} <= {max_val}"
+
+    if max_val == 'gt':
+        condition = f"{attribute} > {min_val}"
 
     sql_query = f"""
         SELECT {attribute}_range, COUNT(*) AS count
@@ -60,6 +64,7 @@ def generate_chart():
 
     # Return the chart data as JSON
     return render_template('index.html', data=data)
+
 
 if __name__ == '__main__':
     app.run()
