@@ -1,59 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chart Example</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Chart Configuration</title>
 </head>
 <body>
-    <form id="chartForm" action="/generate_chart" method="POST">
+    <h1>Chart Configuration</h1>
+    <form action="/generate_chart" method="post">
         <label for="attribute">Attribute:</label>
         <select id="attribute" name="attribute">
+            <!-- Add attribute options here -->
             <option value="population">Population</option>
             <option value="area">Area</option>
-            <!-- Add other attribute options here -->
+            <option value="income">Income</option>
         </select>
-
-        <label for="intervals">Intervals:</label>
-        <select id="intervals" name="intervals" multiple>
-            <option value="50000-100000">Population 50000-100000</option>
-            <option value="100001-150000">Population 100001-150000</option>
-            <option value="150001-200000">Population 150001-200000</option>
-            <option value="200001-250000">Population 200001-250000</option>
-            <option value=">250000">Population > 250000</option>
-            <!-- Add other interval options here -->
+        <br>
+        <label for="interval">Interval:</label>
+        <select id="interval" name="interval">
+            <!-- Add interval options here -->
+            <option value="50000-100000">50000-100000</option>
+            <option value="100001-150000">100001-150000</option>
+            <option value="150001-200000">150001-200000</option>
+            <option value="200001-250000">200001-250000</option>
+            <option value="> 250000">> 250000</option>
         </select>
-
-        <button type="submit">Generate Chart</button>
+        <br>
+        <input type="submit" value="Generate Chart">
     </form>
-
-    <script>
-        document.getElementById('chartForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            var attribute = document.getElementById('attribute').value;
-            var intervals = Array.from(document.getElementById('intervals').selectedOptions, option => option.value);
-
-            var data = {
-                attribute: attribute,
-                intervals: intervals
-            };
-
-            fetch('/generate_chart', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(chartData => {
-                // Redirect to index.html with chart data as URL parameter
-                window.location.href = '/index?chartData=' + encodeURIComponent(JSON.stringify(chartData));
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        });
-    </script>
 </body>
 </html>
