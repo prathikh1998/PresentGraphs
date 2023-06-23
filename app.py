@@ -1,6 +1,5 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import pyodbc
-import json
 
 app = Flask(__name__)
 
@@ -21,14 +20,41 @@ def chart_config():
 @app.route('/generate_chart', methods=['POST'])
 def generate_chart():
     attribute = request.form.get('attribute')
-    interval = request.form.get('interval')
+    intervals = request.form.getlist('interval')
+
+    interval_conditions = []
+    for interval in intervals:
+        min_val, max_val = interval.split('-')
+        condition = f"{attribute} >= {min_val} AND {attribute} <= {max_val}"
+        interval_conditions.append(condition)
+
+    interval_queries = " OR ".join(interval_conditions)
+
+    sql_query = f"""
+        SELECT {attribute}_range, COUNT(*) AS count
+        FROM (
+            SELECT CASE
+                WHEN {interval_queries} THEN '{interval}'
+                ELSE 'Other'
+            END AS {attribute}_range
+            FROM [city-1]
+        ) AS subquery
+        GROUP BY {attribute}_range
+        ORDER BY
+            CASE {attribute}_range
+                WHEN '{intervals[0]}' THEN 1
+                WHEN '{intervals[1]}' THEN 2
+                -- Add more WHEN conditions for intervals as needed
+                ELSE 99
+            END
+    """
 
     # Connect to the database
     conn = pyodbc.connect(connection_string)
     cursor = conn.cursor()
 
     # Execute the SQL query
-    cursor.execute("SELECT population_range, COUNT(*) AS city_count FROM (SELECT CASE WHEN population >= 50000 AND population <= 100000 THEN 'Population 50000-100000' WHEN population > 100000 AND population <= 150000 THEN 'Population 100001-150000' WHEN population > 150000 AND population <= 200000 THEN 'Population 150001-200000' WHEN population > 200000 AND population <= 250000 THEN 'Population 200001-250000' ELSE 'Population > 250000' END AS population_range FROM [city-1]) AS subquery GROUP BY population_range ORDER BY CASE population_range WHEN 'Population 50000-100000' THEN 1 WHEN 'Population 100001-150000' THEN 2 WHEN 'Population 150001-200000' THEN 3 WHEN 'Population 200001-250000' THEN 4 ELSE 5 END")
+    cursor.execute(sql_query)
 
     # Fetch all the rows
     rows = cursor.fetchall()
@@ -43,11 +69,8 @@ def generate_chart():
     cursor.close()
     conn.close()
 
-    # Convert the results to JSON serializable format
-    data = json.dumps(results)
-
-    # Render the template with the data
-    return render_template('index.html', data=data)
+    # Return the chart data as JSON
+    return jsonify(results)
 
 if __name__ == '__main__':
     app.run()
