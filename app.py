@@ -17,24 +17,20 @@ def chart_config():
     return render_template('chart.html')
 
 # Route for generating the chart based on user input
+# Route for generating the chart based on user input
 @app.route('/generate_chart', methods=['POST'])
 def generate_chart():
     attribute = request.form.get('attribute')
-    intervals = request.form.getlist('interval')
+    interval = request.form.get('interval')
 
-    interval_conditions = []
-    for interval in intervals:
-        min_val, max_val = interval.split('-')
-        condition = f"{attribute} >= {min_val} AND {attribute} <= {max_val}"
-        interval_conditions.append(condition)
-
-    interval_queries = " OR ".join(interval_conditions)
+    min_val, max_val = interval.split('-')
+    condition = f"{attribute} >= {min_val} AND {attribute} <= {max_val}"
 
     sql_query = f"""
         SELECT {attribute}_range, COUNT(*) AS count
         FROM (
             SELECT CASE
-                WHEN {interval_queries} THEN '{interval}'
+                WHEN {condition} THEN '{interval}'
                 ELSE 'Other'
             END AS {attribute}_range
             FROM [city-1]
@@ -42,9 +38,7 @@ def generate_chart():
         GROUP BY {attribute}_range
         ORDER BY
             CASE {attribute}_range
-                WHEN '{intervals[0]}' THEN 1
-                WHEN '{intervals[1]}' THEN 2
-                -- Add more WHEN conditions for intervals as needed
+                WHEN '{interval}' THEN 1
                 ELSE 99
             END
     """
