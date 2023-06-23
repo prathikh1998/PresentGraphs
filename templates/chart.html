@@ -1,23 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chart Input</title>
+    <title>Chart Configuration</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>Chart Input</h1>
-    <form action="/generate-chart" method="POST">
-        <!-- Input fields for chart data -->
-        <label for="data">Data:</label>
-        <input type="text" id="data" name="data">
-        <br>
-        <label for="type">Type:</label>
-        <select id="type" name="type">
-            <option value="bar">Bar Chart</option>
-            <option value="line">Line Chart</option>
-            <option value="pie">Pie Chart</option>
-        </select>
-        <br>
-        <button type="submit">Generate Chart</button>
+    <h1>Chart Configuration</h1>
+    <form action="/generate_chart" method="POST">
+        <label for="attribute">Attribute:</label>
+        <input type="text" id="attribute" name="attribute" required><br>
+
+        <label for="interval">Interval:</label>
+        <input type="text" id="interval" name="interval" required><br>
+
+        <input type="submit" value="Generate Chart">
     </form>
 </body>
 </html>
