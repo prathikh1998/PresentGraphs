@@ -63,8 +63,10 @@ def generate_chart():
     cursor.close()
     conn.close()
 
+     data = json.dumps(results)
+
     # Return the chart data as JSON
-    return jsonify(results)
+    return render_template('index.html', data=data)
 
 if __name__ == '__main__':
     app.run()
