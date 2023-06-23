@@ -22,26 +22,26 @@ def chart_config():
 @app.route('/generate_chart', methods=['POST'])
 def generate_chart():
     attribute = request.form.get('attribute')
-    intervals = request.form.getlist('interval')  # Get multiple interval values as a list
+    interval = request.form.get('interval')
 
-    conditions = []
-    for interval in intervals:
-        min_val, max_val = interval.split('-')
-        condition = f"{attribute} >= {min_val} AND {attribute} <= {max_val}"
-        conditions.append(condition)
-
-    case_statement = ""
-    for i, condition in enumerate(conditions):
-        case_statement += f"WHEN {condition} THEN '{intervals[i]}' "
+    min_val, max_val = interval.split('-')
+    condition = f"{attribute} >= {min_val} AND {attribute} <= {max_val}"
 
     sql_query = f"""
         SELECT {attribute}_range, COUNT(*) AS count
         FROM (
-            SELECT CASE {case_statement}ELSE 'Other' END AS {attribute}_range
+            SELECT CASE
+                WHEN {condition} THEN '{interval}'
+                ELSE 'Other'
+            END AS {attribute}_range
             FROM [city-1]
         ) AS subquery
         GROUP BY {attribute}_range
-        ORDER BY CASE {attribute}_range {case_statement}ELSE 'Other' END
+        ORDER BY
+            CASE {attribute}_range
+                WHEN '{interval}' THEN 1
+                ELSE 99
+            END
     """
 
     # Connect to the database
@@ -66,8 +66,8 @@ def generate_chart():
 
     data = json.dumps(results)
 
-    # Pass the query and chart data to the index.html template
-    return render_template('index.html', data=data, query=sql_query)
+    # Return the chart data as JSON
+    return render_template('index.html', data=data)
 
 if __name__ == '__main__':
     app.run()
