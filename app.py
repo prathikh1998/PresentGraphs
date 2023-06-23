@@ -18,6 +18,7 @@ def chart_config():
     return render_template('chart.html')
 
 # Route for generating the chart based on user input
+# Route for generating the chart based on user input
 @app.route('/generate_chart', methods=['POST'])
 def generate_chart():
     attribute = request.form.get('attribute')
@@ -65,9 +66,8 @@ def generate_chart():
 
     data = json.dumps(results)
 
-    # Render the template with query and data
+    # Pass the query and chart data to the index.html template
     return render_template('index.html', data=data, query=sql_query)
-
 
 if __name__ == '__main__':
     app.run()
