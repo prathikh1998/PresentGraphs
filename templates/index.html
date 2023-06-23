@@ -6,6 +6,10 @@
 </head>
 <body>
     <canvas id="myChart"></canvas>
+    
+    <h2>Generated Query:</h2>
+    <pre>{{ query }}</pre>
+
     <script>
         // Retrieve the data passed from the Flask application
         var data = {{ data|safe }};
