@@ -65,8 +65,9 @@ def generate_chart():
 
     data = json.dumps(results)
 
-    # Return the chart data as JSON
-    return render_template('index.html', data=data)
+    # Render the template with query and data
+    return render_template('index.html', data=data, query=sql_query)
+
 
 if __name__ == '__main__':
     app.run()
