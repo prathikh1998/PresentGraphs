@@ -1,19 +1,59 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chart Configuration</title>
+    <title>Chart Example</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>Chart Configuration</h1>
-    <form action="/generate_chart" method="POST">
+    <form id="chartForm" action="/generate_chart" method="POST">
         <label for="attribute">Attribute:</label>
-        <input type="text" id="attribute" name="attribute" required><br>
+        <select id="attribute" name="attribute">
+            <option value="population">Population</option>
+            <option value="area">Area</option>
+            <!-- Add other attribute options here -->
+        </select>
 
-        <label for="interval">Interval:</label>
-        <input type="text" id="interval" name="interval" required><br>
+        <label for="intervals">Intervals:</label>
+        <select id="intervals" name="intervals" multiple>
+            <option value="50000-100000">Population 50000-100000</option>
+            <option value="100001-150000">Population 100001-150000</option>
+            <option value="150001-200000">Population 150001-200000</option>
+            <option value="200001-250000">Population 200001-250000</option>
+            <option value=">250000">Population > 250000</option>
+            <!-- Add other interval options here -->
+        </select>
 
-        <input type="submit" value="Generate Chart">
+        <button type="submit">Generate Chart</button>
     </form>
+
+    <script>
+        document.getElementById('chartForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            var attribute = document.getElementById('attribute').value;
+            var intervals = Array.from(document.getElementById('intervals').selectedOptions, option => option.value);
+
+            var data = {
+                attribute: attribute,
+                intervals: intervals
+            };
+
+            fetch('/generate_chart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(chartData => {
+                // Redirect to index.html with chart data as URL parameter
+                window.location.href = '/index?chartData=' + encodeURIComponent(JSON.stringify(chartData));
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
 </body>
 </html>
