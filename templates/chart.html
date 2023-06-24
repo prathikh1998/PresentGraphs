@@ -2,13 +2,56 @@
 <html>
 <head>
     <title>Chart Configuration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="submit"] {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
     <h1>Chart Configuration</h1>
     <form action="/generate_chart" method="post">
         <label for="attribute">Attribute:</label>
         <select id="attribute" name="attribute">
-            <!-- Add attribute options here -->
             <option value="population">Population</option>
             <option value="area">Area</option>
             <option value="income">Income</option>
@@ -16,12 +59,11 @@
         <br>
         <label for="interval">Interval:</label>
         <select id="interval" name="interval" multiple size="2">
-            <!-- Add interval options here -->
             <option value="50000-100000">50000-100000</option>
             <option value="100001-150000">100001-150000</option>
             <option value="150001-200000">150001-200000</option>
             <option value="200001-250000">200001-250000</option>
-            <option value="> 250000">> 250000</option>
+            <option value="250000">> 250000</option>
         </select>
         <br>
         <input type="submit" value="Generate Chart">
