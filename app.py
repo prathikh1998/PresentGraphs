@@ -22,32 +22,22 @@ def chart_config():
 @app.route('/generate_chart', methods=['POST'])
 def generate_chart():
     attribute = request.form.get('attribute')
-    intervals = request.form.getlist('interval')  # Get multiple interval values as a list
+    interval = request.form.get('interval')
 
-    conditions = []
-    case_statements = []
-    for interval in intervals:
-        min_val, max_val = interval.split('-')
-        if max_val == 'gt':
-            condition = f"{attribute} > {min_val}"
-            case_statement = f"WHEN {condition} THEN '{interval}' "
-        else:
-            condition = f"{attribute} >= {min_val} AND {attribute} <= {max_val}"
-            case_statement = f"WHEN {condition} THEN '{interval}' "
-        conditions.append(condition)
-        case_statements.append(case_statement)
+    min_val, max_val = interval.split('-')
+    condition = f"{attribute} >= {min_val}"
 
-    case_statement = " ".join(case_statements)
+    if max_val != 'gt':
+        condition += f" AND {attribute} <= {max_val}"
 
     sql_query = f"""
         SELECT {attribute}_range, COUNT(*) AS count
         FROM (
-            SELECT CASE {case_statement}ELSE 'Other' END AS {attribute}_range
+            SELECT '{interval}' AS {attribute}_range
             FROM [city-1]
-            WHERE {' OR '.join(conditions)}
+            WHERE {condition}
         ) AS subquery
         GROUP BY {attribute}_range
-        ORDER BY CASE {attribute}_range {case_statement}ELSE 'Other' END
     """
 
     # Connect to the database
