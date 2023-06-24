@@ -37,6 +37,9 @@ def generate_chart():
 
     case_statement = " ".join([f"WHEN {condition} THEN '{interval}'" for condition, interval in zip(conditions, intervals) if interval != 'gt'])
 
+    print("Generated case query:")
+    print(case_statement)
+    
     sql_query = f"""
         SELECT {attribute}_range, COUNT(*) AS count
         FROM (
