@@ -32,7 +32,7 @@ def generate_chart():
             condition = f"{attribute} > {min_val}"
             case_statement = f"WHEN {condition} THEN '{interval}' "
         else:
-            condition = f"{attribute} >= {min_val} AND {attribute} <{max_val}"
+            condition = f"{attribute} >= {min_val} AND {attribute} <= {max_val}"
             case_statement = f"WHEN {condition} THEN '{interval}' "
         conditions.append(condition)
         case_statements.append(case_statement)
