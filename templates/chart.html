@@ -46,24 +46,65 @@
             background-color: #45a049;
         }
     </style>
+    <script>
+        function updateIntervals() {
+            var attributeSelect = document.getElementById('attribute');
+            var intervalSelect = document.getElementById('interval');
+
+            var selectedAttribute = attributeSelect.value;
+            intervalSelect.innerHTML = '';
+
+            if (selectedAttribute === 'population') {
+                var intervals = [
+                    { label: '0-50000', value: '0-50000' },
+                    { label: '50001-100000', value: '50001-100000' },
+                    { label: '100001-150000', value: '100001-150000' },
+                    { label: '150001-200000', value: '150001-200000' },
+                    { label: '200001-250000', value: '200001-250000' },
+                    { label: '> 250000', value: '250000' }
+                ];
+            } else if (selectedAttribute === 'City') {
+                // Interval options for 'City' attribute
+                var intervals = [
+                    { label: 'New York', value: 'New York' },
+                    { label: 'Chicago', value: 'Chicago' },
+                    { label: 'Houston', value: 'Houston' },
+                    { label: 'Los Angeles', value: 'Los Angeles' },
+                    { label: 'Philadelphia', value: 'Philadelphia' }
+                ];
+            } else if (selectedAttribute === 'state') {
+                // Interval options for 'state' attribute
+                var intervals = [
+                    { label: 'Interval A', value: 'intervalA' },
+                    { label: 'Interval B', value: 'intervalB' },
+                    { label: 'Interval C', value: 'intervalC' }
+                ];
+            }
+            // Add interval options to the select element
+            intervals.forEach(function(interval) {
+                var option = document.createElement('option');
+                option.value = interval.value;
+                option.text = interval.label;
+                intervalSelect.add(option);
+            });
+        }
+    </script>
 </head>
 <body>
     <h1>Chart Configuration</h1>
     <form action="/generate_chart" method="post">
         <label for="attribute">Attribute:</label>
-        <select id="attribute" name="attribute">
+        <select id="attribute" name="attribute" onchange="updateIntervals()">
             <option value="population">Population</option>
-            <option value="area">Area</option>
-            <option value="income">Income</option>
+            <option value="City">City</option>
+            <option value="state">State</option>
+            <option value="lat">Lat</option>
+            <option value="lon">Lon</option>
         </select>
         <br>
         <label for="interval">Interval:</label>
         <select id="interval" name="interval" multiple size="2">
-            <option value="50000-100000">50000-100000</option>
-            <option value="100001-150000">100001-150000</option>
-            <option value="150001-200000">150001-200000</option>
-            <option value="200001-250000">200001-250000</option>
-            <option value="250000">> 250000</option>
+            <!-- Interval options will be dynamically added here -->
         </select>
         <br>
         <input type="submit" value="Generate Chart">
