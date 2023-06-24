@@ -27,26 +27,23 @@ def generate_chart():
     conditions = []
     for interval in intervals:
         if interval == 'gt':
-            condition = f"{attribute} > {min_val}"
+            condition = f"{attribute} > {max_val}"
         else:
             min_val, max_val = interval.split('-')
             condition = f"{attribute} >= {min_val} AND {attribute} <= {max_val}"
         conditions.append(condition)
 
-    case_statement = ""
-    for i, condition in enumerate(conditions):
-        case_statement += f"WHEN {condition} THEN '{intervals[i]}' "
+    case_statement = " ".join([f"WHEN {condition} THEN '{interval}'" for condition, interval in zip(conditions, intervals)])
 
     sql_query = f"""
         SELECT {attribute}_range, COUNT(*) AS count
         FROM (
-            SELECT CASE {case_statement}ELSE 'Other' END AS {attribute}_range
+            SELECT CASE {case_statement} ELSE 'Other' END AS {attribute}_range
             FROM [city-1]
         ) AS subquery
         GROUP BY {attribute}_range
-        ORDER BY CASE {attribute}_range {case_statement}ELSE 'Other' END
+        ORDER BY CASE {attribute}_range {case_statement} ELSE 'Other' END
     """
-
 
     # Connect to the database
     conn = pyodbc.connect(connection_string)
