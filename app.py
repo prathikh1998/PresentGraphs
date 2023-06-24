@@ -25,14 +25,14 @@ def generate_chart():
     intervals = request.form.getlist('interval')
 
     conditions = []
-    gt_condition = ""  # Define the variable here
+    gt_condition = ""
 
     for interval in intervals:
         if interval == 'gt':
-            gt_condition = f"WHEN {attribute} > {max_val} THEN '>{max_val}'"
+            gt_condition = f"WHEN {attribute} &gt; {max_val} THEN '&gt;{max_val}'"  # Escape the `<` character
         else:
             min_val, max_val = interval.split('-')
-            condition = f"{attribute} >= {min_val} AND {attribute} <= {max_val}"
+            condition = f"{attribute} &gt;= {min_val} AND {attribute} &lt;= {max_val}"  # Escape the `<` and `>` characters
             conditions.append(condition)
 
     case_statement = " ".join([f"WHEN {condition} THEN '{interval}'" for condition, interval in zip(conditions, intervals) if interval != 'gt'])
@@ -46,6 +46,9 @@ def generate_chart():
         GROUP BY {attribute}_range
         ORDER BY CASE {attribute}_range {case_statement} {gt_condition} ELSE 'Other' END
     """
+
+    # Rest of the code...
+
 
     # Rest of the code...
 
