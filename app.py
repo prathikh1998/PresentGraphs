@@ -29,10 +29,10 @@ def generate_chart():
 
     for interval in intervals:
         if interval == 'gt':
-            gt_condition = f"WHEN {attribute} > {max_val} THEN '&gt;{max_val}'"
+            gt_condition = f"WHEN {attribute} > '{max_val}' THEN '>{max_val}'"
         else:
             min_val, max_val = interval.split('-')
-            condition = f"{attribute} >= {min_val} AND {attribute} <= {max_val}"
+            condition = f"{attribute} >= '{min_val}' AND {attribute} <= '{max_val}'"
             conditions.append(condition)
 
     case_statement = " ".join([f"WHEN {condition} THEN '{interval}'" for condition, interval in zip(conditions, intervals) if interval != 'gt'])
@@ -47,16 +47,8 @@ def generate_chart():
         ORDER BY CASE {attribute}_range {case_statement} {gt_condition} ELSE 'Other' END
     """
 
-    # Rest of the code...
-
-
-    # Rest of the code...
-
-
-    # Rest of the code...
-
-
-    # Rest of the code...
+    print("Generated SQL query:")
+    print(sql_query)
 
 
     # Connect to the database
