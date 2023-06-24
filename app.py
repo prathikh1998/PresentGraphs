@@ -35,8 +35,8 @@ def generate_chart():
             condition = f"{attribute} >= '{min_val}' AND {attribute} <= '{max_val}'"
             conditions.append(condition)
 
-    case_statement = " ".join([f"WHEN {attribute}_range = {interval} THEN '{interval}'" for interval, interval in zip(intervals,intervals) if interval != 'gt'])
-
+    query_statement = " ".join([f"WHEN {condition} THEN '{interval}'" for condition, interval in zip(conditions, intervals) if interval != 'gt'])
+    case_statement = " ".join([f"WHEN {attribute}_range = {interval} THEN '{interval}'" for interval, interval in zip(intervals,intervals) if interval != 'gt']) 
     sql_query = f"""
         SELECT {attribute}_range, COUNT(*) AS count
         FROM (
