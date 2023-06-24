@@ -50,11 +50,13 @@
         function updateIntervals() {
             var attributeSelect = document.getElementById('attribute');
             var intervalSelect = document.getElementById('interval');
+            var form = document.getElementById('chartForm');
 
             var selectedAttribute = attributeSelect.value;
             intervalSelect.innerHTML = '';
 
             if (selectedAttribute === 'population') {
+                // Interval options for 'population' attribute
                 var intervals = [
                     { label: '0-50000', value: '0-50000' },
                     { label: '50001-100000', value: '50001-100000' },
@@ -63,6 +65,7 @@
                     { label: '200001-250000', value: '200001-250000' },
                     { label: '> 250000', value: '250000' }
                 ];
+                form.action = '/generate_chart_population';
             } else if (selectedAttribute === 'City') {
                 // Interval options for 'City' attribute
                 var intervals = [
@@ -72,6 +75,7 @@
                     { label: 'Los Angeles', value: 'Los Angeles' },
                     { label: 'Philadelphia', value: 'Philadelphia' }
                 ];
+                form.action = '/generate_chart_city';
             } else if (selectedAttribute === 'state') {
                 // Interval options for 'state' attribute
                 var intervals = [
@@ -79,7 +83,9 @@
                     { label: 'Interval B', value: 'intervalB' },
                     { label: 'Interval C', value: 'intervalC' }
                 ];
+                form.action = '/generate_chart_state';
             }
+
             // Add interval options to the select element
             intervals.forEach(function(interval) {
                 var option = document.createElement('option');
@@ -92,10 +98,10 @@
 </head>
 <body>
     <h1>Chart Configuration</h1>
-    <form action="/generate_chart" method="post">
+    <form action="/generate_chart" method="post" id="chartForm">
         <label for="attribute">Attribute:</label>
         <select id="attribute" name="attribute" onchange="updateIntervals()">
-            <option>SELECT ONE</option>
+            <option>Select</option>
             <option value="population">Population</option>
             <option value="City">City</option>
             <option value="state">State</option>
