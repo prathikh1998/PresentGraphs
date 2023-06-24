@@ -34,7 +34,8 @@
                 }]
             },
             options: {
-                responsive: true,
+                responsive: true, // Enable dynamic resizing
+                maintainAspectRatio: false, // Allow chart to fill its container
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -46,7 +47,7 @@
                     x: {
                         title: {
                             display: true,
-                            text: 'Attribute Value'
+                            text: 'Attribute'
                         }
                     }
                 }
