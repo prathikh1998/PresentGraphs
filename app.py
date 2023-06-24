@@ -25,16 +25,17 @@ def generate_chart():
     intervals = request.form.getlist('interval')
 
     conditions = []
+    gt_condition = ""  # Define the variable here
+
     for interval in intervals:
         if interval == 'gt':
-            condition = f"{attribute} > {max_val}"
+            gt_condition = f"WHEN {attribute} > {max_val} THEN '>{max_val}'"
         else:
             min_val, max_val = interval.split('-')
             condition = f"{attribute} >= {min_val} AND {attribute} <= {max_val}"
-        conditions.append(condition)
+            conditions.append(condition)
 
     case_statement = " ".join([f"WHEN {condition} THEN '{interval}'" for condition, interval in zip(conditions, intervals) if interval != 'gt'])
-    gt_condition = f"WHEN {attribute} > {max_val} THEN '>{max_val}'" if 'gt' in intervals else ""
 
     sql_query = f"""
         SELECT {attribute}_range, COUNT(*) AS count
@@ -45,6 +46,9 @@ def generate_chart():
         GROUP BY {attribute}_range
         ORDER BY CASE {attribute}_range {case_statement} {gt_condition} ELSE 'Other' END
     """
+
+    # Rest of the code...
+
 
     # Rest of the code...
 
