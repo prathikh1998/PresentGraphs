@@ -40,7 +40,7 @@ def generate_chart():
     sql_query = f"""
         SELECT {attribute}_range, COUNT(*) AS count
         FROM (
-            SELECT CASE {case_statement} {gt_condition} ELSE 'Other' END AS {attribute}_range
+            SELECT CASE {query_statement} {gt_condition} ELSE 'Other' END AS {attribute}_range
             FROM [city-1]
         ) AS subquery
         GROUP BY {attribute}_range
