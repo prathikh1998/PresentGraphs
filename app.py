@@ -35,7 +35,7 @@ def generate_chart():
             condition = f"{attribute} >= '{min_val}' AND {attribute} <= '{max_val}'"
             conditions.append(condition)
 
-    case_statement = " ".join([f"WHEN {attribute}_range = {interval} THEN '{condition}'" for interval, condition in zip(intervals,conditions) if interval != 'gt'])
+    case_statement = " ".join([f"WHEN {attribute}_range = {interval} THEN '{interval}'" for interval, interval in zip(intervals,intervals) if interval != 'gt'])
 
     sql_query = f"""
         SELECT {attribute}_range, COUNT(*) AS count
@@ -44,7 +44,7 @@ def generate_chart():
             FROM [city-1]
         ) AS subquery
         GROUP BY {attribute}_range
-        ORDER BY CASE {attribute}_range {case_statement} {gt_condition} ELSE 'Other' END
+        ORDER BY CASE {case_statement} {gt_condition} ELSE 'Other' END
     """
 
     print("Generated SQL query:")
