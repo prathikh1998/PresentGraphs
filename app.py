@@ -132,8 +132,8 @@ def generate_chart_city():
 # Function to get the number of cities under a given latitude and longitude
 @app.route('/get_num_cities', methods=['POST'])
 def get_num_cities():
-    latitude = request.json.get('latitude')
-    longitude = request.json.get('longitude')
+    latitude = request.form.get('latitude')
+    longitude = request.form.get('longitude')
 
     conditions = []
 
