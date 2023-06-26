@@ -18,7 +18,6 @@ def chart_config():
     return render_template('chart.html')
 
 # Route for generating the chart based on user input
-# Route for generating the chart based on user input
 @app.route('/generate_chart_population', methods=['POST'])
 def generate_chart_population():
     attribute = request.form.get('attribute')
@@ -36,7 +35,7 @@ def generate_chart_population():
             conditions.append(condition)
 
     query_statement = " ".join([f"WHEN {condition} THEN '{interval}'" for condition, interval in zip(conditions, intervals) if interval != 'gt'])
-    case_statement = " ".join([f"WHEN '{interval}' THEN '{interval}'" for interval, interval in zip(intervals,intervals) if interval != 'gt']) 
+    case_statement = " ".join([f"WHEN '{interval}' THEN '{interval}'" for interval, interval in zip(intervals, intervals) if interval != 'gt']) 
     sql_query = f"""
         SELECT {attribute}_range, COUNT(*) AS count
         FROM (
@@ -49,8 +48,6 @@ def generate_chart_population():
 
     print("Generated SQL query:")
     print(sql_query)
-
-
 
     # Connect to the database
     conn = pyodbc.connect(connection_string)
@@ -77,8 +74,7 @@ def generate_chart_population():
     # Return the chart data as JSON
     return render_template('index.html', data=data)
 
-#city function
-
+# Route for generating the chart based on city attribute
 @app.route('/generate_chart_city', methods=['POST'])
 def generate_chart_city():
     attribute = request.form.get('attribute')
@@ -138,7 +134,7 @@ def get_num_cities():
     conditions = []
 
     sql_query= f"""
-    SELECT {latitude},COUNT(*) FROM [city-1] WHERE lat = {latitude} AND lon = {longitude}"""
+    SELECT City,COUNT(*) FROM [city-1] WHERE lat = {latitude} AND lon = {longitude}"""
 
     print("Generated SQL query:")
     print(sql_query)
