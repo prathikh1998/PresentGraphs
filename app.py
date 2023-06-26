@@ -129,5 +129,44 @@ def generate_chart_city():
     return render_template('index.html', data=data)
 
 
+# Function to get the number of cities under a given latitude and longitude
+@app.route('/get_num_cities', methods=['POST'])
+def get_num_cities():
+    latitude = request.json.get('latitude')
+    longitude = request.json.get('longitude')
+
+    conditions = []
+
+    sql_query= f"""
+    SELECT COUNT(*) FROM [city-1] WHERE latitude = {latitude} AND longitude = {longitude}"""
+
+    print("Generated SQL query:")
+    print(sql_query)
+
+    conn = pyodbc.connect(connection_string)
+    cursor = conn.cursor()
+
+    # Execute the SQL query
+    cursor.execute(sql_query)
+
+    # Fetch all the rows
+    rows = cursor.fetchall()
+
+    # Convert rows to a list of dictionaries
+    results = []
+    for row in rows:
+        result = {'attribute_value': row[0], 'count': row[1]}
+        results.append(result)
+
+    # Close the database connection
+    cursor.close()
+    conn.close()
+
+    data = json.dumps(results)
+
+    # Return the chart data as JSON
+    return render_template('index.html', data=data)
+
+
 if __name__ == '__main__':
     app.run()
