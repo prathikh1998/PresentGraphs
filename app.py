@@ -40,6 +40,8 @@ def process_tuples():
         for tuple in tuples
     ]
 
+    print(data)
+
     # Render the index.html template with the data
     return render_template('index.html', data=data)
 
