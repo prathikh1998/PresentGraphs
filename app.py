@@ -14,18 +14,23 @@ driver = '{ODBC Driver 17 for SQL Server}'
 connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}'
 
 # Route for displaying the chart configuration form
+from flask import Flask, render_template, request, jsonify
+from decimal import Decimal
+
+app = Flask(__name__)
+
 @app.route('/')
 def chart_config():
     return render_template('chart.html')
 
 
-# Route for processing tuples from the HTML form and sending them to index.html
 @app.route('/process_tuples', methods=['POST'])
 def process_tuples():
-    tuples = request.json.get('tuples')
+    tuples = request.form.get('json_data')
+    tuples = json.loads(tuples)
 
     # Perform further processing with the tuples
-    
+
     # Prepare the data to be sent to index.html
     data = [
         {
