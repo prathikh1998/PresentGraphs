@@ -138,7 +138,7 @@ def get_num_cities():
     conditions = []
 
     sql_query= f"""
-    SELECT COUNT(*) FROM [city-1] WHERE lat = {latitude} AND lon = {longitude}"""
+    SELECT City,COUNT(*) FROM [city-1] WHERE lat = {latitude} AND lon = {longitude}"""
 
     print("Generated SQL query:")
     print(sql_query)
