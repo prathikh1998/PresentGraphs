@@ -20,7 +20,7 @@ def chart_config():
 
 # Route for generating the chart based on user input
 @app.route('/generate_chart_population', methods=['POST'])
-def generate_chart_population():
+def generate_chart_mag():
     attribute = request.form.get('attribute')
     intervals = request.form.getlist('interval')
 
