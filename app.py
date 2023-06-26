@@ -29,6 +29,8 @@ def process_tuples():
     tuples = request.form.get('json_data')
     tuples = json.loads(tuples)
 
+    print(tuples)
+
     # Perform further processing with the tuples
 
     # Prepare the data to be sent to index.html
