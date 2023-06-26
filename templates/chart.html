@@ -32,6 +32,12 @@
             margin-bottom: 20px;
         }
 
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
         input[type="submit"] {
             background-color: #4caf50;
             color: white;
@@ -49,11 +55,19 @@
     <script>
         function updateIntervals() {
             var attributeSelect = document.getElementById('attribute');
-            var intervalSelect = document.getElementById('interval');
             var form = document.getElementById('chartForm');
 
             var selectedAttribute = attributeSelect.value;
-            intervalSelect.innerHTML = '';
+
+            // Remove latitude and longitude inputs if they exist
+            var latitudeInput = document.getElementById('latitudeInput');
+            var longitudeInput = document.getElementById('longitudeInput');
+            if (latitudeInput) {
+                form.removeChild(latitudeInput);
+            }
+            if (longitudeInput) {
+                form.removeChild(longitudeInput);
+            }
 
             if (selectedAttribute === 'population') {
                 // Interval options for 'population' attribute
@@ -85,34 +99,36 @@
                     { label: 'Interval C', value: 'intervalC' }
                 ];
                 form.action = '/generate_chart_state';
-            }
+            } else if (selectedAttribute === 'latlon') {
+                form.action = '/generate_chart_latlon';
+                // Display text inputs for latitude and longitude
+                var latitudeInput = document.createElement('input');
+                latitudeInput.type = 'text';
+                latitudeInput.placeholder = 'Latitude';
+                latitudeInput.name = 'latitude';
+                latitudeInput.id = 'latitudeInput';
+                form.appendChild(latitudeInput);
 
-            // Add interval options to the select element
-            intervals.forEach(function(interval) {
-                var option = document.createElement('option');
-                option.value = interval.value;
-                option.text = interval.label;
-                intervalSelect.add(option);
-            });
+                var longitudeInput = document.createElement('input');
+                longitudeInput.type = 'text';
+                longitudeInput.placeholder = 'Longitude';
+                longitudeInput.name = 'longitude';
+                longitudeInput.id = 'longitudeInput';
+                form.appendChild(longitudeInput);
+            }
         }
     </script>
 </head>
 <body>
     <h1>Chart Configuration</h1>
-    <form action="/generate_chart" method="post" id="chartForm">
+    <form action="/generate_chart_latlon" method="post" id="chartForm">
         <label for="attribute">Attribute:</label>
         <select id="attribute" name="attribute" onchange="updateIntervals()">
             <option>Select</option>
             <option value="population">Population</option>
             <option value="City">City</option>
             <option value="state">State</option>
-            <option value="lat">Lat</option>
-            <option value="lon">Lon</option>
-        </select>
-        <br>
-        <label for="interval">Interval:</label>
-        <select id="interval" name="interval" multiple size="2">
-            <!-- Interval options will be dynamically added here -->
+            <option value="latlon">Latitude & Longitude</option>
         </select>
         <br>
         <input type="submit" value="Generate Chart">
