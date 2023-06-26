@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import pyodbc
 import json
+from decimal import Decimal
 
 app = Flask(__name__)
 
@@ -151,7 +152,7 @@ def get_num_cities():
     # Convert rows to a list of dictionaries
     results = []
     for row in rows:
-        result = {'attribute_value': row[0], 'count': row[1]}
+        result = {'attribute_value': str(row[0]), 'count': row[1]}
         results.append(result)
 
     # Close the database connection
