@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chart Configuration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="submit"] {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script>
+        function updateIntervals() {
+            var attributeSelect = document.getElementById('attribute');
+            var intervalSelect = document.getElementById('interval');
+            var form = document.getElementById('chartForm');
+
+            var selectedAttribute = attributeSelect.value;
+            intervalSelect.innerHTML = '';
+
+            if (selectedAttribute === 'population') {
+                // Interval options for 'population' attribute
+                var intervals = [
+                    { label: '0-50000', value: '0-50000' },
+                    { label: '50001-100000', value: '50001-100000' },
+                    { label: '100001-150000', value: '100001-150000' },
+                    { label: '150001-200000', value: '150001-200000' },
+                    { label: '200001-250000', value: '200001-250000' },
+                    { label: '> 250000', value: 'gt' }
+                ];
+                form.action = '/generate_chart_population';
+            } else if (selectedAttribute === 'City') {
+                // Interval options for 'City' attribute
+                var intervals = [
+                    { label: 'New York', value: 'New York' },
+                    { label: 'Chicago', value: 'Chicago' },
+                    { label: 'Houston', value: 'Houston' },
+                    { label: 'Springfield', value: 'Springfield' },
+                    { label: 'Los Angeles', value: 'Los Angeles' },
+                    { label: 'Philadelphia', value: 'Philadelphia' }
+                ];
+                form.action = '/generate_chart_city';
+            } else if (selectedAttribute === 'mag') {
+                // Interval options for 'City' attribute
+                var intervals = [
+                    { label: '0-1', value: '0-1' },
+                    { label: '1-2', value: '1-2' },
+                    { label: '2-3', value: '2-3' },
+                    { label: '3-4', value: '3-4' },
+                    { label: '4-5', value: '4-5' },
+                    { label: '5-6', value: '5-6' }
+                ];
+                form.action = '/generate_chart_mag';
+            }else if (selectedAttribute === 'state') {
+                // Interval options for 'state' attribute
+                var intervals = [
+                    { label: 'Interval A', value: 'intervalA' },
+                    { label: 'Interval B', value: 'intervalB' },
+                    { label: 'Interval C', value: 'intervalC' }
+                ];
+                form.action = '/generate_chart_state';
+            } else if (selectedAttribute === 'latlon') {
+                // Get latitude and longitude inputs
+                var latInput = document.getElementById('latitude');
+                var lonInput = document.getElementById('longitude');
+                var latitude = parseFloat(latInput.value);
+                var longitude = parseFloat(lonInput.value);
+                form.action = '/get_num_cities';
+            }
+
+            // Add interval options to the select element
+            intervals.forEach(function (interval) {
+                var option = document.createElement('option');
+                option.value = interval.value;
+                option.text = interval.label;
+                intervalSelect.add(option);
+            });
+        }
+    </script>
+</head>
+<body onload="updateIntervals()">
+    <h1>Chart Configuration</h1>
+    <form action="/generate_chart" method="post" id="chartForm">
+        <label for="attribute">Attribute:</label>
+        <select id="attribute" name="attribute" onchange="updateIntervals()">
+            <option>Select</option>
+            <option value="population">Population</option>
+            <option value="mag">Magnitude</option>
+            <option value="City">City</option>
+            <option value="state">State</option>
+            <option value="latlon">Latitude and Longitude</option>
+        </select>
+        <br>
+        <label for="interval">Interval:</label>
+        <select id="interval" name="interval" multiple size="2">
+            <!-- Interval options will be dynamically added here -->
+        </select>
+        <br>
+        <label for="latitude">Latitude:</label>
+        <input type="text" id="latitude" name="latitude">
+        <br>
+        <label for="longitude">Longitude:</label>
+        <input type="text" id="longitude" name="longitude">
+        <br>
+        <input type="submit" value="Generate Chart">
+    </form>
+</body>
+</html>
