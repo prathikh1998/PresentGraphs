@@ -96,153 +96,77 @@
         }
     </style>
     <script>
-        // JavaScript code
-
-        function updateIntervals() {
-            var attributeSelect = document.getElementById('attribute');
-            var intervalSelect = document.getElementById('interval');
-            var form = document.getElementById('chartForm');
-
-            var selectedAttribute = attributeSelect.value;
-            intervalSelect.innerHTML = '';
-
-            if (selectedAttribute === 'population') {
-                // Interval options for 'population' attribute
-                var intervals = [
-                    { label: '0-50000', value: '0-50000' },
-                    { label: '50001-100000', value: '50001-100000' },
-                    { label: '100001-150000', value: '100001-150000' },
-                    { label: '150001-200000', value: '150001-200000' },
-                    { label: '200001-250000', value: '200001-250000' },
-                    { label: '> 250000', value: 'gt' }
-                ];
-                form.action = '/generate_chart_population';
-            } else if (selectedAttribute === 'City') {
-                // Interval options for 'City' attribute
-                var intervals = [
-                    { label: 'New York', value: 'New York' },
-                    { label: 'Chicago', value: 'Chicago' },
-                    { label: 'Houston', value: 'Houston' },
-                    { label: 'Springfield', value: 'Springfield' },
-                    { label: 'Los Angeles', value: 'Los Angeles' },
-                    { label: 'Philadelphia', value: 'Philadelphia' }
-                ];
-                form.action = '/generate_chart_city';
-            } else if (selectedAttribute === 'mag') {
-                // Interval options for 'City' attribute
-                var intervals = [
-                    { label: '0-1', value: '0-1' },
-                    { label: '1-2', value: '1-2' },
-                    { label: '2-3', value: '2-3' },
-                    { label: '3-4', value: '3-4' },
-                    { label: '4-5', value: '4-5' },
-                    { label: '5-6', value: '5-6' }
-                ];
-                form.action = '/generate_chart_mag';
-            }else if (selectedAttribute === 'state') {
-                // Interval options for 'state' attribute
-                var intervals = [
-                    { label: 'Interval A', value: 'intervalA' },
-                    { label: 'Interval B', value: 'intervalB' },
-                    { label: 'Interval C', value: 'intervalC' }
-                ];
-                form.action = '/generate_chart_state';
-            } else if (selectedAttribute === 'latlon') {
-                // Get latitude and longitude inputs
-                var latInput = document.getElementById('latitude');
-                var lonInput = document.getElementById('longitude');
-                var latitude = parseFloat(latInput.value);
-                var longitude = parseFloat(lonInput.value);
-                form.action = '/get_num_cities';
-            }
-
-            // Add interval options to the select element
-            intervals.forEach(function (interval) {
-                var option = document.createElement('option');
-                option.value = interval.value;
-                option.text = interval.label;
-                intervalSelect.add(option);
-            });
-        }
-
-        function showTupleInput() {
-            var attributeSelect = document.getElementById('attribute');
-            var tupleInputContainer = document.getElementById('tupleInputContainer');
-            var addTupleButton = document.getElementById('addTupleButton');
-
-            if (attributeSelect.value === 'tuple') {
-                tupleInputContainer.style.display = 'block';
-                addTupleButton.style.display = 'inline-block';
-            } else {
-                tupleInputContainer.style.display = 'none';
-                addTupleButton.style.display = 'none';
-            }
-        }
-
-        function addTupleInput() {
-            var tupleContainer = document.createElement('div');
-            tupleContainer.className = 'tuple';
-
-            var letterLabel = document.createElement('label');
-            letterLabel.textContent = 'Letter:';
+        function addTuple() {
+            var tuplesContainer = document.getElementById('tuplesContainer');
+            
+            var tupleDiv = document.createElement('div');
+            tupleDiv.classList.add('tuple');
+            
             var letterInput = document.createElement('input');
             letterInput.type = 'text';
             letterInput.name = 'letters[]';
-
-            var amountLabel = document.createElement('label');
-            amountLabel.textContent = 'Amount:';
+            
             var amountInput = document.createElement('input');
             amountInput.type = 'text';
             amountInput.name = 'amounts[]';
-
-            var removeButton = document.createElement('button');
-            removeButton.className = 'removeTupleButton';
-            removeButton.textContent = 'Remove';
-            removeButton.addEventListener('click', function () {
-                tupleContainer.remove();
-            });
-
-            tupleContainer.appendChild(letterLabel);
-            tupleContainer.appendChild(letterInput);
-            tupleContainer.appendChild(amountLabel);
-            tupleContainer.appendChild(amountInput);
-            tupleContainer.appendChild(removeButton);
-
-            var tupleInputContainer = document.getElementById('tupleInputContainer');
-            tupleInputContainer.appendChild(tupleContainer);
+            
+            tupleDiv.appendChild(letterInput);
+            tupleDiv.appendChild(amountInput);
+            
+            tuplesContainer.appendChild(tupleDiv);
         }
-    </script>
+    
+        function processTuples() {
+            var tuples = [];
+            var tupleDivs = document.getElementsByClassName('tuple');
+            
+            for (var i = 0; i < tupleDivs.length; i++) {
+                var letterInput = tupleDivs[i].querySelector('input[name="letters[]"]');
+                var amountInput = tupleDivs[i].querySelector('input[name="amounts[]"]');
+                var letter = letterInput.value;
+                var amount = amountInput.value;
+                
+                tuples.push({ letter: letter, amount: amount });
+            }
+            
+            // Send tuples to the /process_tuples endpoint in app.py
+            fetch('/process_tuples', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tuples: tuples })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response from the server
+                console.log(data);
+            })
+            .catch(error => {
+                // Handle any errors
+                console.error('Error:', error);
+            });
+        }
+    </script>    
 </head>
-<body onload="updateIntervals()">
+<body onload="addTuple()">
     <h1>Chart Configuration</h1>
-    <form action="/generate_chart" method="post" id="chartForm">
+    <form action="/process_tuples" method="post" id="chartForm" onsubmit="processTuples()">
         <label for="attribute">Attribute:</label>
         <select id="attribute" name="attribute" onchange="showTupleInput()">
             <option>Select</option>
-            <option value="population">Population</option>
-            <option value="mag">Magnitude</option>
-            <option value="City">City</option>
-            <option value="state">State</option>
-            <option value="latlon">Latitude and Longitude</option>
             <option value="tuple">Tuple</option> <!-- New option for tuples -->
         </select>
         <br>
         <label for="interval">Interval:</label>
         <select id="interval" name="interval" multiple size="2">
-            <!-- Interval options will be dynamically added here -->
+            <!-- Options here -->
         </select>
         <br>
-        <label for="latitude">Latitude:</label>
-        <input type="text" id="latitude" name="latitude">
-        <br>
-        <label for="longitude">Longitude:</label>
-        <input type="text" id="longitude" name="longitude">
-        <br>
-        <div id="tupleInputContainer">
-            <label>Tuples:</label>
-            <div id="tuplesContainer"></div>
-            <button id="addTupleButton" type="button" onclick="addTupleInput()">Add Tuple</button>
+        <div id="tuplesContainer">
+            <!-- Tuples dynamically added here -->
         </div>
+        <button type="button" onclick="addTuple()">Add Tuple</button>
         <br>
         <input type="submit" value="Generate Chart">
     </form>

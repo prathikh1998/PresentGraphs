@@ -9,7 +9,7 @@
     <script>
         // Retrieve the data passed from the Flask application
         var data = {{ data|safe }};
-
+        
         // Extract the attribute values and counts from the data
         var labels = data.map(function(item) {
             return item.attribute_value;
