@@ -3,48 +3,8 @@
 <head>
     <title>Chart Configuration</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
+        /* CSS styles */
 
-        h1 {
-            text-align: center;
-        }
-
-        form {
-            max-width: 400px;
-            margin: 0 auto;
-            background-color: #f5f5f5;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        label {
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-
-        input[type="submit"] {
-            background-color: #4caf50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #45a049;
-        }
     </style>
     <script>
         function updateIntervals() {
@@ -63,7 +23,7 @@
                     { label: '100001-150000', value: '100001-150000' },
                     { label: '150001-200000', value: '150001-200000' },
                     { label: '200001-250000', value: '200001-250000' },
-                    { label: '> 250000', value: '250000' }
+                    { label: '> 250000', value: 'gt' }
                 ];
                 form.action = '/generate_chart_population';
             } else if (selectedAttribute === 'City') {
@@ -72,7 +32,7 @@
                     { label: 'New York', value: 'New York' },
                     { label: 'Chicago', value: 'Chicago' },
                     { label: 'Houston', value: 'Houston' },
-                    { label: 'Springfield', value: 'Springfield'},
+                    { label: 'Springfield', value: 'Springfield' },
                     { label: 'Los Angeles', value: 'Los Angeles' },
                     { label: 'Philadelphia', value: 'Philadelphia' }
                 ];
@@ -85,10 +45,44 @@
                     { label: 'Interval C', value: 'intervalC' }
                 ];
                 form.action = '/generate_chart_state';
+            } else if (selectedAttribute === 'latlon') {
+                // Get latitude and longitude inputs
+                var latInput = document.getElementById('latitude');
+                var lonInput = document.getElementById('longitude');
+                var latitude = parseFloat(latInput.value);
+                var longitude = parseFloat(lonInput.value);
+
+                // Perform AJAX request to get the number of cities in the selected location
+                fetch('/get_num_cities', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        latitude: latitude,
+                        longitude: longitude
+                    })
+                })
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        var numCities = data.numCities;
+                        var interval = 'Within ' + numCities + ' cities';
+
+                        // Add interval option for the selected location
+                        var option = document.createElement('option');
+                        option.value = interval;
+                        option.text = interval;
+                        intervalSelect.add(option);
+                    });
+
+                // Set the form action to handle the selected attribute
+                form.action = '/generate_chart_latlon';
             }
 
             // Add interval options to the select element
-            intervals.forEach(function(interval) {
+            intervals.forEach(function (interval) {
                 var option = document.createElement('option');
                 option.value = interval.value;
                 option.text = interval.label;
@@ -106,14 +100,19 @@
             <option value="population">Population</option>
             <option value="City">City</option>
             <option value="state">State</option>
-            <option value="lat">Lat</option>
-            <option value="lon">Lon</option>
+            <option value="latlon">Latitude and Longitude</option>
         </select>
         <br>
         <label for="interval">Interval:</label>
         <select id="interval" name="interval" multiple size="2">
             <!-- Interval options will be dynamically added here -->
         </select>
+        <br>
+        <label for="latitude">Latitude:</label>
+        <input type="text" id="latitude" name="latitude">
+        <br>
+        <label for="longitude">Longitude:</label>
+        <input type="text" id="longitude" name="longitude">
         <br>
         <input type="submit" value="Generate Chart">
     </form>
