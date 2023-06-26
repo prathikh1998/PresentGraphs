@@ -95,63 +95,51 @@
             cursor: pointer;
         }
     </style>
+    
     <script>
         function addTuple() {
             var tuplesContainer = document.getElementById('tuplesContainer');
-            
+
             var tupleDiv = document.createElement('div');
             tupleDiv.classList.add('tuple');
-            
+
             var letterInput = document.createElement('input');
             letterInput.type = 'text';
             letterInput.name = 'letters[]';
-            
+
             var amountInput = document.createElement('input');
             amountInput.type = 'text';
             amountInput.name = 'amounts[]';
-            
+
             tupleDiv.appendChild(letterInput);
             tupleDiv.appendChild(amountInput);
-            
+
             tuplesContainer.appendChild(tupleDiv);
         }
-    
+
         function processTuples() {
             var tuples = [];
             var tupleDivs = document.getElementsByClassName('tuple');
-            
+
             for (var i = 0; i < tupleDivs.length; i++) {
                 var letterInput = tupleDivs[i].querySelector('input[name="letters[]"]');
                 var amountInput = tupleDivs[i].querySelector('input[name="amounts[]"]');
                 var letter = letterInput.value;
                 var amount = amountInput.value;
-                
+
                 tuples.push({ letter: letter, amount: amount });
             }
-            
-            // Send tuples to the /process_tuples endpoint in app.py
-            fetch('/process_tuples', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ tuples: tuples })
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Handle the response from the server
-                console.log(data);
-            })
-            .catch(error => {
-                // Handle any errors
-                console.error('Error:', error);
-            });
+
+            // Set the JSON data in the hidden input field
+            document.getElementById('jsonDataInput').value = JSON.stringify(tuples);
+
+            // The form will automatically be submitted to "/process_tuples"
         }
-    </script>    
+    </script>
 </head>
-<body onload="addTuple()">
+<body>
     <h1>Chart Configuration</h1>
-    <form action="/process_tuples" method="post" id="chartForm" onsubmit="processTuples()">
+    <form action="/process_tuples" method="post" id="chartForm">
         <label for="attribute">Attribute:</label>
         <select id="attribute" name="attribute" onchange="showTupleInput()">
             <option>Select</option>
@@ -168,6 +156,7 @@
         </div>
         <button type="button" onclick="addTuple()">Add Tuple</button>
         <br>
+        <input id="jsonDataInput" type="hidden" name="json_data">
         <input type="submit" value="Generate Chart">
     </form>
 </body>
