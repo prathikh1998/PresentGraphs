@@ -77,7 +77,18 @@
                     { label: 'Philadelphia', value: 'Philadelphia' }
                 ];
                 form.action = '/generate_chart_city';
-            } else if (selectedAttribute === 'state') {
+            } else if (selectedAttribute === 'mag') {
+                // Interval options for 'City' attribute
+                var intervals = [
+                    { label: '0-1', value: '0-1' },
+                    { label: '1-2', value: '1-2' },
+                    { label: '2-3', value: '2-3' },
+                    { label: '3-4', value: '3-4' },
+                    { label: '4-5', value: '4-5' },
+                    { label: '5-6', value: '5-6' }
+                ];
+                form.action = '/generate_chart_mag';
+            }else if (selectedAttribute === 'state') {
                 // Interval options for 'state' attribute
                 var intervals = [
                     { label: 'Interval A', value: 'intervalA' },
@@ -111,6 +122,7 @@
         <select id="attribute" name="attribute" onchange="updateIntervals()">
             <option>Select</option>
             <option value="population">Population</option>
+            <option value="mag">Magnitude</option>
             <option value="City">City</option>
             <option value="state">State</option>
             <option value="latlon">Latitude and Longitude</option>
