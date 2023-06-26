@@ -3,6 +3,8 @@
 <head>
     <title>Chart Configuration</title>
     <style>
+        /* CSS styles */
+
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
@@ -45,8 +47,57 @@
         input[type="submit"]:hover {
             background-color: #45a049;
         }
+
+        /* ... existing styles ... */
+
+        /* Additional styles for tuple input */
+        #tupleInputContainer {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        #tupleInputContainer label {
+            display: inline-block;
+            width: 50px;
+        }
+
+        #tupleInputContainer input[type="text"] {
+            width: 80px;
+        }
+
+        #addTupleButton {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 5px 10px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .tuple {
+            margin-bottom: 10px;
+        }
+
+        .tuple input[type="text"] {
+            width: 50px;
+        }
+
+        .removeTupleButton {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 3px 6px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
     <script>
+        // JavaScript code
+
         function updateIntervals() {
             var attributeSelect = document.getElementById('attribute');
             var intervalSelect = document.getElementById('interval');
@@ -113,19 +164,67 @@
                 intervalSelect.add(option);
             });
         }
+
+        function showTupleInput() {
+            var attributeSelect = document.getElementById('attribute');
+            var tupleInputContainer = document.getElementById('tupleInputContainer');
+            var addTupleButton = document.getElementById('addTupleButton');
+
+            if (attributeSelect.value === 'tuple') {
+                tupleInputContainer.style.display = 'block';
+                addTupleButton.style.display = 'inline-block';
+            } else {
+                tupleInputContainer.style.display = 'none';
+                addTupleButton.style.display = 'none';
+            }
+        }
+
+        function addTupleInput() {
+            var tupleContainer = document.createElement('div');
+            tupleContainer.className = 'tuple';
+
+            var letterLabel = document.createElement('label');
+            letterLabel.textContent = 'Letter:';
+            var letterInput = document.createElement('input');
+            letterInput.type = 'text';
+            letterInput.name = 'letters[]';
+
+            var amountLabel = document.createElement('label');
+            amountLabel.textContent = 'Amount:';
+            var amountInput = document.createElement('input');
+            amountInput.type = 'text';
+            amountInput.name = 'amounts[]';
+
+            var removeButton = document.createElement('button');
+            removeButton.className = 'removeTupleButton';
+            removeButton.textContent = 'Remove';
+            removeButton.addEventListener('click', function () {
+                tupleContainer.remove();
+            });
+
+            tupleContainer.appendChild(letterLabel);
+            tupleContainer.appendChild(letterInput);
+            tupleContainer.appendChild(amountLabel);
+            tupleContainer.appendChild(amountInput);
+            tupleContainer.appendChild(removeButton);
+
+            var tupleInputContainer = document.getElementById('tupleInputContainer');
+            tupleInputContainer.appendChild(tupleContainer);
+        }
     </script>
 </head>
 <body onload="updateIntervals()">
     <h1>Chart Configuration</h1>
     <form action="/generate_chart" method="post" id="chartForm">
         <label for="attribute">Attribute:</label>
-        <select id="attribute" name="attribute" onchange="updateIntervals()">
+        <select id="attribute" name="attribute" onchange="showTupleInput()">
             <option>Select</option>
             <option value="population">Population</option>
             <option value="mag">Magnitude</option>
             <option value="City">City</option>
             <option value="state">State</option>
             <option value="latlon">Latitude and Longitude</option>
+            <option value="tuple">Tuple</option> <!-- New option for tuples -->
         </select>
         <br>
         <label for="interval">Interval:</label>
@@ -138,6 +237,12 @@
         <br>
         <label for="longitude">Longitude:</label>
         <input type="text" id="longitude" name="longitude">
+        <br>
+        <div id="tupleInputContainer">
+            <label>Tuples:</label>
+            <div id="tuplesContainer"></div>
+            <button id="addTupleButton" type="button" onclick="addTupleInput()">Add Tuple</button>
+        </div>
         <br>
         <input type="submit" value="Generate Chart">
     </form>
