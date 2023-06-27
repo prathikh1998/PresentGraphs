@@ -8,10 +8,10 @@
     <canvas id="myChart"></canvas>
     <script>
         // Retrieve the data passed from the Flask application
-        var data = {{ data|safe }};
+        var data = JSON.parse('{{ data|tojson|safe }}');
         
         // Extract the attribute values and counts from the data
-        var labels = data.map(function(item) {
+        var attributeValues = data.map(function(item) {
             return item.attribute_value;
         });
 
@@ -19,12 +19,12 @@
             return item.count;
         });
 
-        // Create a new bar chart using Chart.js
+        // Create a new bar chart using Chart.js (horizontal chart)
         var ctx = document.getElementById('myChart').getContext('2d');
         var myChart = new Chart(ctx, {
-            type: 'bar',
+            type: 'bar',  // Set chart type to bar (horizontal chart)
             data: {
-                labels: labels,
+                labels: attributeValues,
                 datasets: [{
                     label: 'Data Count',
                     data: counts,
@@ -34,17 +34,18 @@
                 }]
             },
             options: {
+                indexAxis: 'y',  // Set the axis to display the bars horizontally
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: {
+                    x: {
                         beginAtZero: true,
                         title: {
                             display: true,
                             text: 'Count'
                         }
                     },
-                    x: {
+                    y: {
                         title: {
                             display: true,
                             text: 'Attribute'
@@ -53,6 +54,10 @@
                 }
             }
         });
+        
+        // Update the canvas size to fit the chart
+        ctx.canvas.parentNode.style.height = '400px';
+        ctx.canvas.parentNode.style.width = '600px';
     </script>
 </body>
 </html>
